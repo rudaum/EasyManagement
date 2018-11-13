@@ -1,0 +1,67 @@
+.main-header {
+    width: 100%;
+    background-color: #ffffff solid;
+    margin-top: 6px;
+    border: #cdcdcd medium solid;
+    border-radius: 6px;
+    margin-bottom: 1%;
+}
+
+
+.tree-l1 {
+    margin-left:0px;
+}
+
+ul{
+  margin-left:10px;
+}
+
+.panel-base {
+    width: 100% !important;
+    position: absolute;
+    top: 20%;
+}
+
+.content-main {
+    width: 84% !important;
+    overflow: scroll;
+    height: 75vh;
+}
+
+.panel-tree {
+    width: 16%;
+    background-color: #f0fefa;
+    overflow: scroll;
+    height: 75vh;
+}
+
+.panel-tree span {
+    float: right;
+    font-size: 66%;
+}
+
+.text-large {
+    font-size: 115%
+}
+
+.navbar {
+    padding-left: 14%;
+}
+
+.alignleft {
+	float: left;
+}
+.alignright {
+	float: right;
+}
+
+footer {
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    max-width: 100%;
+    background-color: #ffffff;
+    margin-top: 6px;
+    border: #cdcdcd medium solid;
+    border-radius: 6px;
+}

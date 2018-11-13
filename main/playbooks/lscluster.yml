@@ -1,0 +1,22 @@
+---
+- hosts: all
+  gather_facts: no
+  
+  tasks:
+     - name: Transfer the temp script
+       copy: src=support_scripts/lscluster.sh dest=/tmp/lscluster.sh mode=0775
+
+     - name: Execute the script
+       command: sh /tmp/lscluster.sh
+       register: output
+
+     - name: Clean the temp Script
+       file:
+         state: absent
+         path: "/tmp/lscluster.sh"
+
+     - name: Output Attributes
+       # local_action: copy content="{{ output }}" dest=/tmp/"{{ inventory_hostname }}"
+       local_action: copy content={{ output.stdout_lines }} dest=/data/ansible/EasyManagement/main/playbooks/output/lscluster/{{ inventory_hostname }}.pb
+       with_items:
+       - output
