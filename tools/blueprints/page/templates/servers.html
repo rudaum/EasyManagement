@@ -1,0 +1,611 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Easy Manager - Servers{% endblock %}
+{% block body %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/users.css') }}">
+    <div class="container">
+        <div class="tab-content">
+            <table class="table table-hover table-responsive table-bordered">
+                <thead>
+                    <tr>
+                        <th id="#name">Name</th>
+                        <th id="#ipaddress">Ipaddress</th>
+                        <th id="#oslevel">Oslevel</th>
+                        <th id="#cores">Cores</th>
+                        <th id="#vprocs">Vprocs</th>
+                        <th id="#cpu_type">Cpu_type</th>
+                        <th id="#cpu_mode">Cpu_mode</th>
+                        <th id="#memory">Memory</th>
+                        <th id="#iscluster">Iscluster</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>alibaba</td>
+                        <td>10.61.44.145</td>
+                        <td>7100-05-02-1810</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>16384 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp18</td>
+                        <td>10.61.221.46</td>
+                        <td>7100-05-02-1810</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>65536 MB</td>
+                        <td>"ibcomtest" (dehamsp18 denotsp18)</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp19</td>
+                        <td>10.61.44.153</td>
+                        <td>7100-05-02-1810</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>65536 MB</td>
+                        <td>"parisade" (dehamsp19 denotsp19)</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp21</td>
+                        <td>10.61.221.24</td>
+                        <td>7100-05-02-1810</td>
+                        <td>6</td>
+                        <td>7</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>102400 MB</td>
+                        <td>"ibedi1" (dehamsp21 denotsp21)</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp22</td>
+                        <td>10.61.221.25</td>
+                        <td>7100-05-02-1810</td>
+                        <td>11</td>
+                        <td>13</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>61440 MB</td>
+                        <td>"ibcom1" (dehamsp22 denotsp22)</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp23</td>
+                        <td>10.61.221.26</td>
+                        <td>7100-05-02-1810</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>102400 MB</td>
+                        <td>"ibedi2" (dehamsp23 denotsp23)</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp24</td>
+                        <td>10.61.221.27</td>
+                        <td>7100-05-02-1810</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>61440 MB</td>
+                        <td>"ibcom2" (dehamsp24 denotsp24)</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp25</td>
+                        <td>10.61.221.28</td>
+                        <td>7100-05-02-1810</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>61440 MB</td>
+                        <td>"ibedi3" (dehamsp25 denotsp25)</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp26</td>
+                        <td>10.61.221.29</td>
+                        <td>7100-05-02-1810</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>61440 MB</td>
+                        <td>"ibcom3" (dehamsp26 denotsp26)</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp27</td>
+                        <td>10.61.221.30</td>
+                        <td>7100-05-02-1810</td>
+                        <td>5</td>
+                        <td>6</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>102400 MB</td>
+                        <td>"ibedi4" (dehamsp27 denotsp27)</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp29</td>
+                        <td>10.61.42.103</td>
+                        <td>7100-04-03-1642</td>
+                        <td>0</td>
+                        <td>1</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>16384 MB</td>
+                        <td>"kn-workplace-db" (dehamsp29 denotsp29)</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp31</td>
+                        <td>10.61.42.105</td>
+                        <td>7100-05-02-1810</td>
+                        <td>1</td>
+                        <td>3</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>8192 MB</td>
+                        <td>"ftpint" (dehamsp31 denotsp31)</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp32</td>
+                        <td>10.61.9.32</td>
+                        <td>7100-05-02-1810</td>
+                        <td>4</td>
+                        <td>8</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>16384 MB</td>
+                        <td>"ftpext" (dehamsp32 denotsp32)</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp33</td>
+                        <td>10.61.9.7</td>
+                        <td>7100-05-02-1810</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>2048 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp34</td>
+                        <td>10.61.42.107</td>
+                        <td>7100-05-02-1810</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>40960 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp36</td>
+                        <td>10.61.42.20</td>
+                        <td>7200-02-02-1806</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>2048 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>dehamsp40</td>
+                        <td>10.61.42.120</td>
+                        <td>7100-05-02-1810</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>16384 MB</td>
+                        <td>"ftpext-test" (dehamsp40 denotsp40)</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp18</td>
+                        <td>10.61.221.47</td>
+                        <td>7100-05-02-1810</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>65536 MB</td>
+                        <td>"ibcomtest" (dehamsp18 denotsp18)</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp19</td>
+                        <td>10.61.44.154</td>
+                        <td>7100-05-02-1810</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>65536 MB</td>
+                        <td>"parisade" (dehamsp19 denotsp19)</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp21</td>
+                        <td>10.61.221.31</td>
+                        <td>7100-05-02-1810</td>
+                        <td>6</td>
+                        <td>7</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>102400 MB</td>
+                        <td>"ibedi1" (dehamsp21 denotsp21)</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp22</td>
+                        <td>10.61.221.32</td>
+                        <td>7100-05-02-1810</td>
+                        <td>11</td>
+                        <td>13</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>61440 MB</td>
+                        <td>"ibcom1" (dehamsp22 denotsp22)</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp23</td>
+                        <td>10.61.221.33</td>
+                        <td>7100-05-02-1810</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>102400 MB</td>
+                        <td>"ibedi2" (dehamsp23 denotsp23)</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp24</td>
+                        <td>10.61.221.34</td>
+                        <td>7100-05-02-1810</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>61440 MB</td>
+                        <td>"ibcom2" (dehamsp24 denotsp24)</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp25</td>
+                        <td>10.61.221.35</td>
+                        <td>7100-05-02-1810</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>61440 MB</td>
+                        <td>"ibedi3" (dehamsp25 denotsp25)</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp26</td>
+                        <td>10.61.221.36</td>
+                        <td>7100-05-02-1810</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>61440 MB</td>
+                        <td>"ibcom3" (dehamsp26 denotsp26)</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp27</td>
+                        <td>10.61.221.37</td>
+                        <td>7100-05-02-1810</td>
+                        <td>5</td>
+                        <td>6</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>102399 MB</td>
+                        <td>"ibedi4" (dehamsp27 denotsp27)</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp31</td>
+                        <td>10.61.42.115</td>
+                        <td>7100-05-02-1810</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>8192 MB</td>
+                        <td>"ftpint" (dehamsp31 denotsp31)</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp32</td>
+                        <td>10.61.9.33</td>
+                        <td>7100-05-02-1810</td>
+                        <td>4</td>
+                        <td>8</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>16384 MB</td>
+                        <td>"ftpext" (dehamsp32 denotsp32)</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp33</td>
+                        <td>10.61.9.8</td>
+                        <td>7100-05-02-1810</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>2048 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp36</td>
+                        <td>10.61.42.19</td>
+                        <td>7200-02-02-1806</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>2048 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>denotsp40</td>
+                        <td>10.61.42.130</td>
+                        <td>7100-05-02-1810</td>
+                        <td>2</td>
+                        <td>4</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>16384 MB</td>
+                        <td>"ftpext-test" (dehamsp40 denotsp40)</td>
+                    </tr>
+                    <tr>
+                        <td>nereid</td>
+                        <td>10.61.44.20</td>
+                        <td>7100-05-02-1810</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>102400 MB</td>
+                        <td>"ibaz" (nereid thalassa)</td>
+                    </tr>
+                    <tr>
+                        <td>salomo1</td>
+                        <td>10.61.44.21</td>
+                        <td>7100-05-02-1810</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>6144 MB</td>
+                        <td>"salomo" (salomo1 salomo2)</td>
+                    </tr>
+                    <tr>
+                        <td>salomo2</td>
+                        <td>10.61.44.24</td>
+                        <td>7100-05-02-1810</td>
+                        <td>2</td>
+                        <td>3</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>6144 MB</td>
+                        <td>"salomo" (salomo1 salomo2)</td>
+                    </tr>
+                    <tr>
+                        <td>sindbad1</td>
+                        <td>10.61.44.252</td>
+                        <td>7100-05-02-1810</td>
+                        <td>42</td>
+                        <td>42</td>
+                        <td>Dedicated-SMT</td>
+                        <td>Capped</td>
+                        <td>112640 MB</td>
+                        <td>"sindbad" (sindbad1 sindbad2)</td>
+                    </tr>
+                    <tr>
+                        <td>sindbad2</td>
+                        <td>10.61.44.253</td>
+                        <td>7100-05-02-1810</td>
+                        <td>42</td>
+                        <td>42</td>
+                        <td>Dedicated-SMT</td>
+                        <td>Capped</td>
+                        <td>112640 MB</td>
+                        <td>"sindbad" (sindbad1 sindbad2)</td>
+                    </tr>
+                    <tr>
+                        <td>thalassa</td>
+                        <td>10.61.44.23</td>
+                        <td>7100-05-02-1810</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>Shared-SMT</td>
+                        <td>Uncapped</td>
+                        <td>102400 MB</td>
+                        <td>"ibaz" (nereid thalassa)</td>
+                    </tr>
+                    <tr>
+                        <td>vios-e1</td>
+                        <td>10.61.44.29</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>4</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>4096 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-e2</td>
+                        <td>10.61.44.30</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>4</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>4096 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-h1</td>
+                        <td>10.61.44.31</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>4</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>4096 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-h2</td>
+                        <td>10.61.44.32</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>4</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>4096 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-hamvp3-1</td>
+                        <td>10.61.221.20</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>5120 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-hamvp3-2</td>
+                        <td>10.61.221.21</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>5120 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-hamvp4-1</td>
+                        <td>10.61.42.101</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Capped</td>
+                        <td>6144 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-hamvp4-2</td>
+                        <td>10.61.42.102</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Capped</td>
+                        <td>8192 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-hamvp5-1</td>
+                        <td>10.61.42.31</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>6144 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-hamvp5-2</td>
+                        <td>10.61.42.32</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>6144 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-notvp3-1</td>
+                        <td>10.61.221.22</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>5120 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-notvp3-2</td>
+                        <td>10.61.221.23</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>5120 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-notvp4-1</td>
+                        <td>10.61.42.111</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>6144 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-notvp4-2</td>
+                        <td>10.61.42.112</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>6144 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-notvp5-1</td>
+                        <td>10.61.42.33</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>6144 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                    <tr>
+                        <td>vios-notvp5-2</td>
+                        <td>10.61.42.34</td>
+                        <td>6100-09-09-1717</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>Shared-SMT-4</td>
+                        <td>Uncapped</td>
+                        <td>6144 MB</td>
+                        <td>Not Clustered</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="/static/js/template-users.js"></script>
+{% endblock %}

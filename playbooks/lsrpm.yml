@@ -1,0 +1,22 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+     - name: Transferring the lsrpm temp script
+       copy: src=support_scripts/lsrpm.sh dest=/tmp/lsrpm.sh mode=0755
+
+     - name: Executing the lsrpm script
+       command: sh /tmp/lsrpm.sh
+       register: output
+
+     - name: Cleaning the temp Script
+       file:
+         state: absent
+         path: "/tmp/lsrpm.sh"
+
+     - name: Output Attributes
+       # local_action: copy content="{{ output }}" dest=/tmp/"{{ inventory_hostname }}"
+       local_action: copy content={{ output.stdout_lines }} dest=/data/ansible/EasyManagement/main/playbooks/output/lsrpm/{{ inventory_hostname }}.pb
+       with_items:
+       - output
+       # debug: var=output.stdout_lines
