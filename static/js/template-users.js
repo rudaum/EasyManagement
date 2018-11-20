@@ -1,10 +1,4 @@
 $(document).ready(function(){
-    var urlarray = window.location.href.split('/');
-    if (urlarray.length == 5) {
-        var user = urlarray[urlarray.length - 1];
-        $('#' + user).show();
-        window.history.pushState('page2', 'Title', '/users');
-    }
     $("#userFilter").on("keyup", function() {
         var value = $(this).val().toLowerCase();
         $(".dropdown-menu li").filter(function() {
@@ -14,8 +8,30 @@ $(document).ready(function(){
 
     $('.dropdown-menu li').click(function () {
         if (user != '') {
-            $('#' + user).hide();
-            user = '';
+            //$('#' + user).hide();
+
+            user = $(this).text().toLowerCase();
+            window.location.replace("http://127.0.0.1:5000/users/" + user)
         };
     });
+
+    $('#table-filter').on("keyup", function() {
+        var filter, tr, td, tbody, i;
+        filter = $(this).val().toUpperCase();
+
+        tbody = document.getElementById("user-table-body");
+        tr = tbody.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            th = tr[i].getElementsByTagName("th")[0];
+            if (th) {
+              if (th.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+              } else {
+                tr[i].style.display = "none";
+              }
+            }
+        }
+    });
+
 });
+

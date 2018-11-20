@@ -20,7 +20,7 @@ path = os.path.realpath(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(path + '/../../')
 from subprocess import call
 from main.lib.settings import PLAYBOOKBIN, PBDIR, SAFESERVER
-from main.lib.dblib import mkDbenv, RPM
+from main.lib.dblib import mk_dbenv, RPM
 
 # --------------------------------------------------------------- #
 ### END OF MODULE IMPORTS
@@ -59,10 +59,10 @@ targ_hosts = ARGS[1] if NARGS > 0 else SAFESERVER
 targ_hosts = targ_hosts
 
 # Creating the Empty Tables in the Database f it doesn't exist yet
-mkDbenv()
+mk_dbenv()
 
 # Querying servers from the Database and storing the results in a Ordered Dict
-ordered_dict = RPM().queryAll()
+ordered_dict = RPM().query_all()
 
 # setting the Ansible Command
 ans_cmd = [PLAYBOOKBIN, PBDIR + "lsrpm.yml", "-l", targ_hosts]
@@ -77,7 +77,6 @@ for filename in os.listdir(PBOUTPUTDIR):
         file = open(os.path.join(PBOUTPUTDIR, filename))
         list = eval('[' + file.readline().replace(', "-NEXT-", ', '],[').replace(', "-NEXT-"]', ']') + ']')
         for item in list:
-            print item
             name = item[0].split('=')[1]
             dictidx = name + '_' + host
             if dictidx not in ordered_dict.keys():
@@ -87,7 +86,7 @@ for filename in os.listdir(PBOUTPUTDIR):
             ordered_dict[dictidx].server_name = host
             for attribute in item[1:]:
                 attr = attribute.split('=')[0]
-                value = attribute.split('=')[1] if len(attribute.split('=')[1]) > 0 else ' ' # Some Attributes are Empty!
+                value = attribute.split('=')[1] if len(attribute.split('=')[1]) > 0 else ' '  # Skipping empty attr.
                 if attr == "Version":
                     ordered_dict[dictidx].version = value
                 elif attr == "Release":

@@ -90,32 +90,34 @@ for filename in os.listdir(PBOUTPUTDIR):
                 ordered_dict[dictidx] = User()
 
             ordered_dict[dictidx].user_server = dictidx
-            ordered_dict[dictidx].User_Name = username
+            ordered_dict[dictidx].user_name = username
             ordered_dict[dictidx].server_name = host
             for attribute in user[1:]:
                 attr = attribute.split('=')[0]
                 #                               Some Attributes are null
                 value = attribute.split('=')[1] if len(attribute.split('=')[1]) > 0 else NULLSTR
                 if attr == "id":
-                    ordered_dict[dictidx].User_ID = value
+                    ordered_dict[dictidx].user_id = value
                 elif attr == "pgrp":
-                    ordered_dict[dictidx].Primary_Group = value
+                    ordered_dict[dictidx].primary_group = value
                 elif attr == "groups":
-                    ordered_dict[dictidx].Groups = value
+                    ordered_dict[dictidx].groups = value
                 elif attr == "home":
-                    ordered_dict[dictidx].Home = value
+                    ordered_dict[dictidx].home = value
                 elif attr == "gecos":
-                    ordered_dict[dictidx].Gecos = value
+                    ordered_dict[dictidx].gecos = value
                 elif attr == "time_last_login":
                     if value == NULLSTR:
                         datestamp = datetime.utcfromtimestamp(float(0)).strftime('%Y-%m-%d %H:%M:%S')
                     else:
                         datestamp = datetime.utcfromtimestamp(float(value)).strftime('%Y-%m-%d %H:%M:%S')
                     ordered_dict[dictidx].time_last_login = datestamp
+                elif attr == "unsuccessful_login_count":
+                    ordered_dict[dictidx].unsuccessful_login_count = value
                 elif attr == "maxage":
                     ordered_dict[dictidx].maxage = value
                 elif attr == "shell":
-                    ordered_dict[dictidx].Shell = value
+                    ordered_dict[dictidx].shell = value
                 elif attr == "umask":
                     ordered_dict[dictidx].umask = value
                 elif attr == "fsize":
@@ -159,7 +161,7 @@ for filename in os.listdir(PBOUTPUTDIR):
                 elif attr == "registry":
                     ordered_dict[dictidx].registry = value
                 elif attr == "SYSTEM":
-                    ordered_dict[dictidx].SYSTEM = value
+                    ordered_dict[dictidx].system = value
                 elif attr == "logintimes":
                     ordered_dict[dictidx].logintimes = value
                 elif attr == "loginretries":

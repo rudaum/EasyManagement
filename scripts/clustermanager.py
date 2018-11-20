@@ -19,7 +19,7 @@ import sys
 path = os.path.realpath(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(path + '/../../')
 from subprocess import call
-from main.lib.dblib import mkDbenv, Cluster
+from main.lib.dblib import mk_dbenv, Cluster
 from main.lib.settings import PLAYBOOKBIN, PBDIR, SAFESERVER
 # --------------------------------------------------------------- #
 ### END OF MODULE IMPORTS
@@ -57,10 +57,10 @@ Parameters:
 targ_hosts = ARGS[1] if NARGS > 0 else SAFESERVER
 
 # Creating the Empty Tables in the Database f it doesn't exist yet
-mkDbenv()
+mk_dbenv()
 
 # Querying servers from the Database and storing the results in a Ordered Dict
-cluster_dict = Cluster().queryAll()
+cluster_dict = Cluster().query_all()
 
 # setting the Ansible Command
 ans_cmd = [PLAYBOOKBIN, PBDIR + "lscluster.yml", "-l", targ_hosts]

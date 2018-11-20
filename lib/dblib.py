@@ -58,6 +58,19 @@ def query_all_from(_class):
 
 
 # --------------------------------------------------------------- #
+def query_distinct_from(table_class, column):
+    """
+    Purpose:
+        Queries the Database for UNIQUE entries that match single Attribute and returns a list of results
+    """
+    query = eval('DBSession.query({}.{}).distinct()'
+                 .format(table_class, column))
+    result = [item[0] for item in query.all()]
+    return result
+# --------------------------------------------------------------- #
+
+
+# --------------------------------------------------------------- #
 def destroy_table(_class):
     """
     Purpose:
@@ -277,7 +290,7 @@ class Server(DBASE):
         DBSession.add(self)
         DBSession.commit()
 
-    def query(self, custom_query):
+    def custom_query(self, custom_query):
         query = eval('DBSession.query({}).filter({})').format(type(self).__name__, custom_query)
         return query.all()
 
@@ -305,18 +318,19 @@ class User(DBASE):
     __tablename__ = 'users'
     # Here we define columns for the table servers
     # Notice that each column is also a normal Python instance attribute.
-    user_server = Column(String(256), primary_key=True)
-    # user_server = Column(String(256), nullable=False, unique=True)
-    server_name = Column(String(256), nullable=False)
-    User_Name = Column(String(20), nullable=False)
-    User_ID = Column(Integer, nullable=False)
-    Primary_Group = Column(String(120))
-    Groups = Column(String(120))
-    Home = Column(String(256), nullable=False)
-    Gecos = Column(String(256))
+    user_server = Column(String(), primary_key=True)
+    server_name = Column(String(), nullable=False)
+    user_name = Column(String(), nullable=False)
+    user_id = Column(Integer, nullable=False)
+    primary_group = Column(String())
+    groups = Column(String())
+    home = Column(String(), nullable=False)
+    gecos = Column(String())
     time_last_login = Column(DateTime())
     maxage = Column(Integer)
-    Shell = Column(String(256))
+    account_locked = Column(String())
+    shell = Column(String())
+    unsuccessful_login_count = Column(String())
     umask = Column(Integer)
     fsize = Column(Integer)
     cpu = Column(Integer)
@@ -325,24 +339,23 @@ class User(DBASE):
     core = Column(Integer)
     rss = Column(Integer)
     nofiles = Column(Integer)
-    login = Column(String(8))
-    su = Column(String(8))
-    rlogin = Column(String(8))
-    daemon = Column(String(8))
-    admin = Column(String(8))
-    sugroups = Column(String(256))
-    admgroups = Column(String(256))
-    tpath = Column(String(12))
-    ttys = Column(String(256))
+    login = Column(String())
+    su = Column(String())
+    rlogin = Column(String())
+    daemon = Column(String())
+    admin = Column(String())
+    sugroups = Column(String())
+    admgroups = Column(String())
+    tpath = Column(String())
+    ttys = Column(String())
     expires = Column(Integer)
-    auth1 = Column(String(256))
-    auth2 = Column(String(256))
-    registry = Column(String(256))
-    SYSTEM = Column(String(256))
-    logintimes = Column(String(256))
+    auth1 = Column(String())
+    auth2 = Column(String())
+    registry = Column(String())
+    system = Column(String())
+    logintimes = Column(String())
     loginretries = Column(Integer)
     pwdwarntime = Column(Integer)
-    account_locked = Column(String(8))
     minage = Column(Integer)
     maxexpired = Column(Integer)
     minalpha = Column(Integer)
@@ -352,10 +365,10 @@ class User(DBASE):
     minlen = Column(Integer)
     histexpire = Column(Integer)
     histsize = Column(Integer)
-    pwdchecks = Column(String(256))
-    dictionlist = Column(String(256))
-    default_roles = Column(String(256))
-    roles = Column(String(256))
+    pwdchecks = Column(String())
+    dictionlist = Column(String())
+    default_roles = Column(String())
+    roles = Column(String())
 
     def self_destruct(self):
         """
@@ -365,7 +378,7 @@ class User(DBASE):
         """
         self.__table__.drop(DBENGINE)
 
-    def get_column_values(self, column):
+    def get_column_value(self, column):
         """
         Purpose:
             Retrieves the current value of this instance's column's value. But not from the DB
@@ -399,8 +412,9 @@ class User(DBASE):
         DBSession.add(self)
         DBSession.commit()
 
-    def query(self, custom_query):
-        query = eval('DBSession.query({}).filter({})').format(type(self).__name__, custom_query)
+    def custom_query(self, custom_query):
+        print
+        query = DBSession.query(type(self).__name__).filter(custom_query)
         return query.all()
 
     def query_all(self):
