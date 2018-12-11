@@ -1,0 +1,108 @@
+body, html, header{
+    margin: 0;
+    padding: 0;
+    top: 0;
+    clear: both;
+}
+
+.vert-grad {
+     background-image: linear-gradient(180deg, var(--theme-color), #d2ebf9);
+}
+
+.horiz-grad {
+     background-image: linear-gradient(90deg, var(--theme-color), #d2ebf9);
+}
+
+#header {
+    position: absolute;
+    width: 100%;
+    float: left;
+    z-index: 9;
+}
+
+#header a {
+    text-decoration: none;
+}
+
+#header ul {
+    list-style-type: none;
+}
+
+#header li {
+    display: inline;
+}
+
+#em-logo{
+    padding: 0vh 1vw 1vh 2vw;
+}
+
+#em-logo a{
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+#navigation-bar {
+    background-color: var(--greyish);
+}
+
+.navbar-hover:hover {
+    background-color: var(--navbar-theme);
+}
+
+#navbar-table td{
+    vertical-align: text-top;
+    padding: 1vh 0vw 1vh 2vw;
+}
+
+#navbar-table a{
+    color: #000000;
+    font-weight: bold;
+}
+
+.navbar-dropdown-content {
+    display: none;
+}
+
+.navbar-dropdown:hover .navbar-dropdown-content {
+    display: block;
+}
+
+.navbar-dropdown-content:hover {
+    display: block;
+}
+
+.navbar-dropdown-content a {
+    display: block;
+    text-align: left;
+    font-weight: 100;
+    font-size: 80%;
+    padding-left: 20px;
+}
+
+.navbar-dropdown-content i {
+    transform: rotate(90deg)
+}
+
+#panel-base {
+    width: 100%;
+    position: static;
+    left: 0px;
+    bottom: 30px;
+    overflow: auto;
+    height: 97vh;
+    padding-top: 15vh;
+}
+
+.themed-hover:hover {
+    background-color: #d2ebf9;
+    color: var(--theme-color);
+}
+
+
+footer {
+    bottom: 0px;
+    margin-top: 6px;
+    position: fixed;
+    width: 100%;
+}
+

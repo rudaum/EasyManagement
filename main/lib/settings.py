@@ -1,5 +1,4 @@
 import os
-
 DEBUG = True
 SQLALCHEMY_DATABASE_URI = 'mysql://easymanager:q1w2e3r4@denotsl90.int.kn/easymanagement'
 SQLALCHEMY_TRACK_MODIFICATIONS = True

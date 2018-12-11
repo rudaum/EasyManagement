@@ -1,1 +1,1 @@
-from main.tools.blueprints.page.views import page
+from views import page

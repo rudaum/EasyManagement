@@ -21,8 +21,7 @@ path = os.path.realpath(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append('{0}/../../'.format(path))
 from subprocess import call
 from main.lib.settings import PLAYBOOKBIN, PBDIR, SAFESERVER, NULLSTR
-from main.lib.dblib import mk_dbenv, User
-
+from main.lib.dblib import mk_dbenv, User, UserChanges
 # --------------------------------------------------------------- #
 ### END OF MODULE IMPORTS ###
 
@@ -32,6 +31,7 @@ from main.lib.dblib import mk_dbenv, User
 ARGS = sys.argv
 NARGS = len(ARGS[1:])
 PBOUTPUTDIR = PBDIR + "output/lsuser/"
+IGNORED_ATTR = ["unsuccessful_login_count", "time_last_login"]
 # --------------------------------------------------------------- #
 ### END OF GLOBAL VARIABLES DECLARATION ###
 
@@ -59,6 +59,7 @@ Parameters:
 targ_hosts = ARGS[1] if NARGS > 0 else SAFESERVER
 targ_hosts = targ_hosts
 
+
 # Creating the Empty Tables in the Database f it doesn't exist yet
 mk_dbenv()
 
@@ -72,9 +73,10 @@ ans_cmd = [PLAYBOOKBIN, PBDIR + "lsuser.yml", "-l", targ_hosts]
 print ('Trying to retrieve Users info from Ansible Clients ...')
 try:
     call(ans_cmd)
+    print ('Success! Retrieved Users info from Ansible Clients')
 except OSError as err_msg:
     print('Could not execute "{}":\n{}'.format(ans_cmd, err_msg))
-print ('Success! Retrieved Users info from Ansible Clients')
+
 
 # Creating Server Classes from the Files generated from the Ansible Playbook
 for filename in os.listdir(PBOUTPUTDIR):
@@ -82,40 +84,62 @@ for filename in os.listdir(PBOUTPUTDIR):
         host = os.path.basename(filename).replace(".pb", "")
         _file = open(os.path.join(PBOUTPUTDIR, filename))
         userlist = eval('[' + _file.readline().replace(', "-NEXT-", ', '],[').replace(', "-NEXT-"]', ']') + ']')
+        changes_dict = []
         print ('Parsing/Persisting Users for {} ...'.format(host))
         for user in userlist:
+            newuser = False
             username = user[0].split('=')[1]
             dictidx = username + '_' + host
             if dictidx not in ordered_dict.keys():
                 ordered_dict[dictidx] = User()
+                newuser = True
+                now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                changes_dict.append([username, host, 'user', 'non-existent', 'created', now])
 
             ordered_dict[dictidx].user_server = dictidx
-            ordered_dict[dictidx].User_Name = username
+            ordered_dict[dictidx].user_name = username
             ordered_dict[dictidx].server_name = host
             for attribute in user[1:]:
                 attr = attribute.split('=')[0]
                 #                               Some Attributes are null
                 value = attribute.split('=')[1] if len(attribute.split('=')[1]) > 0 else NULLSTR
+
+                # transforming 'id' and pgrp attrs in quivalent name for the DB;l
+                tmpattr = 'user_id' if attr == 'id' else attr
+                tmpattr = 'primary_group' if tmpattr == 'pgrp' else tmpattr
+                try:
+                    # if it is not an ingrable attribute and it is not a new user, compare old and new values
+                    if tmpattr not in IGNORED_ATTR and not newuser:
+                        db_value = User().query_by('user_server', dictidx)[0].get_column_value(tmpattr)
+                        if str(db_value) != str(value):
+                            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                            changes_dict.append([username, host, attr, db_value, value, now])
+                except AttributeError:
+                    continue
+
+
                 if attr == "id":
-                    ordered_dict[dictidx].User_ID = value
+                    ordered_dict[dictidx].user_id = value
                 elif attr == "pgrp":
-                    ordered_dict[dictidx].Primary_Group = value
+                    ordered_dict[dictidx].primary_group = value
                 elif attr == "groups":
-                    ordered_dict[dictidx].Groups = value
+                    ordered_dict[dictidx].groups = value
                 elif attr == "home":
-                    ordered_dict[dictidx].Home = value
+                    ordered_dict[dictidx].home = value
                 elif attr == "gecos":
-                    ordered_dict[dictidx].Gecos = value
+                    ordered_dict[dictidx].gecos = value
                 elif attr == "time_last_login":
                     if value == NULLSTR:
                         datestamp = datetime.utcfromtimestamp(float(0)).strftime('%Y-%m-%d %H:%M:%S')
                     else:
                         datestamp = datetime.utcfromtimestamp(float(value)).strftime('%Y-%m-%d %H:%M:%S')
                     ordered_dict[dictidx].time_last_login = datestamp
+                elif attr == "unsuccessful_login_count":
+                    ordered_dict[dictidx].unsuccessful_login_count = value
                 elif attr == "maxage":
                     ordered_dict[dictidx].maxage = value
                 elif attr == "shell":
-                    ordered_dict[dictidx].Shell = value
+                    ordered_dict[dictidx].shell = value
                 elif attr == "umask":
                     ordered_dict[dictidx].umask = value
                 elif attr == "fsize":
@@ -159,7 +183,7 @@ for filename in os.listdir(PBOUTPUTDIR):
                 elif attr == "registry":
                     ordered_dict[dictidx].registry = value
                 elif attr == "SYSTEM":
-                    ordered_dict[dictidx].SYSTEM = value
+                    ordered_dict[dictidx].system = value
                 elif attr == "logintimes":
                     ordered_dict[dictidx].logintimes = value
                 elif attr == "loginretries":
@@ -197,5 +221,16 @@ for filename in os.listdir(PBOUTPUTDIR):
 
             # Persisting the User Object into the database
             ordered_dict[dictidx].update()
+
+        print ('Processing the User changes since last run ...')
+        for change in changes_dict:
+            ch = UserChanges()
+            ch.user_name = change[0]
+            ch.server_name = change[1]
+            ch.attribute_name = change[2]
+            ch.old_value = change[3]
+            ch.new_value = change[4]
+            ch.detected_on = change[5]
+            ch.update()
         print ('Success! Parsed/Persisted Users for {}'.format(host))
 ### END OF MAIN PROGRAM

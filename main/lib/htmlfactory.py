@@ -21,10 +21,6 @@
 """
 ### START OF MODULE IMPORTS
 # --------------------------------------------------------------- #
-from collections import OrderedDict
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
 from dblib import Server, User
 # --------------------------------------------------------------- #
 ### END OF MODULE IMPORTS
@@ -286,7 +282,7 @@ class ServerPage(HtmlPage):
         self.append_code('</div>')  # closing <div> 'container'
 
         # - Script Session - #
-        self.append_code('<script src="/static/js/template-users.js"></script>')
+        self.append_code('<script src="/static/js/users.js"></script>')
         # - End of script session - #
 
         self.append_code("{% endblock %}")
@@ -406,7 +402,7 @@ class UserPage(HtmlPage):
         self.append_code('</div>')  # closing <div> 'container'
 
         # - Script Session - #
-        self.append_code('<script src="/static/js/template-users.js"></script>')
+        self.append_code('<script src="/static/js/users.js"></script>')
         # - End of script session - #
 
         self.append_code("{% endblock %}")

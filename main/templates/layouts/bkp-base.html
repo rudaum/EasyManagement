@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        <script src="/static/js/browser.js"></script>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontawesome-all.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
+        <title> {% block title %} {% endblock %} </title>
+    </head>
+    <body>
+        <div class="main-header text-left fixed horiz-grad">
+            <h2 style="margin-left: 40px;"><a href="/"><b class="white">Easy Management</b></a></h2>
+        </div>
+        <nav class="navbar navbar-default fixed base-nav">
+            <div class="container-fluid">
+                <ul class="nav navbar-nav">
+                    <li><a href="/"><b class="black"><i class="fa fa-home"></i> Home</b></a></li>
+                    <li><a href="/servers"><b class="black"><i class="fa fa-server"></i> Servers</b></a></li>
+                    <li class="navbar-dropdown">
+                        <i class="fa fa-users"></i>
+                            <span class="bold">Users</span>
+                        <i class="fa fa-caret-down"></i>
+                        <div class="navbar-dropdown-content">
+                            <a href="/users" class="themed-hover"> <i class="fa fa-level-up-alt" style="transform: rotate(90deg);"></i> View </a>
+                            <a href="/users-changelog" class="themed-hover"> <i class="fa fa-level-up-alt" style="transform: rotate(90deg);"></i> Change Log </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div id="panel-base">
+            {%- block body %}
+            {%- endblock %}
+        </div>
+    </body>
+    <footer class="main-footer fixed horiz-grad theme">
+        <ul class="list-inline text-center">
+            <li class="text-muted"><b>Easy Management &copy; 2018</b></li>
+            <li><a class="theme" href="">FAQ</a></li>
+        </ul>
+    </footer>
+</html>

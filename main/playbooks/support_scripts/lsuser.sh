@@ -1,6 +1,6 @@
 #!/usr/bin/ksh
 # Listing all users, but skipping users with the home as /ftproot (skips ftpusers)
-/usr/sbin/lsuser -C bin | egrep -v "/ftproot|#name:id:" | awk -F":" '{
+/usr/sbin/lsuser -C ALL | egrep -v "/ftproot|#name:id:" | sed 's/#!://g'| awk -F":" '{
     print "name="$1;
     print "id="$2;
     print "pgrp="$3;

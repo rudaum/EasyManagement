@@ -1,23 +1,35 @@
 {% extends 'layouts/base.html' %}
-{% block title %}Easy Manager - users/{{ user }}{% endblock %}
+{% block title %}
+    {%- if user == '-ALL-' %}
+        Easy Manager - users-changelog
+    {%- else %}
+        Easy Manager - users-changelog/{{ user }}
+    {%- endif %}
+{% endblock %}
+
+
 {% block body %}
-            <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/users.css') }}">
             <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tables.css') }}">
             <table id="filter-table">
                 <tr>
                     <!-- USER selection dropdown list -->
                     <td class="thin-border theme themed-hover">
                         <ul class="em-dropdown-cell em-dropdown">
-                            <li class="text-large ">
-                                <a data-toggle="dropdown" class="theme" href="#">
-                                    <b class="fa fa-user"></b><b class="largest-text"> {{ user }} </b>
+                            <li class="dropdown text-large ">
+                                <a data-toggle="dropdown" class="theme nodeco" href="#">
+                                    {%- if user == '-ALL-' %}
+                                    <b class="fa fa-user"></b><b class="nodeco largest-text"> Select an User</b>
+                                    {%- else %}
+                                    <b class="fa fa-user"></b><b class="nodeco largest-text"> {{ user }}</b>
+                                    {%- endif %}
                                     <b class="fas fa-caret-down"></b>
                                 </a>
                                 <ul class="dropdown-menu" id="user-dropdown-menu">
-                                    <input class="form-control" id="userFilter" type="text" placeholder="Search user ...">
-                                    {%- for uniq_user in uniq_users %}
-                                    {%- set hrefstr = "/users/" + uniq_user %}
-                                    <li><a class="theme" href={{ hrefstr }}>{{ uniq_user }}</a></li>
+                                    <input class="form-control" id="user-changelogFilter" type="text" placeholder="Search user ...">
+                                    <li><a class="theme" href="/users-changelog">-ALL-</a></li>
+                                    {%- for user in user_changes.get_uniq_users() %}
+                                    {%- set hrefstr = "/users-changelog/" + user %}
+                                    <li><a class="theme" href={{ hrefstr }}>{{ user }}</a></li>
                                     {%- endfor %}
                                 </ul>
                             </li>
@@ -32,44 +44,41 @@
                         </a>
                     </td>
                     <!-- END of Table filter button -->
-
                     <!-- Change Log Switcher -->
                     {%- if user == '-ALL-' %}
-                        {%- set href = "/users-changelog" %}
+                        {%- set href = "/users" %}
                     {%- else %}
-                        {%- set href = "/users-changelog/" + user %}
+                        {%- set href = "/users/" + user %}
                     {%- endif %}
                     <td style="padding: 10px">
                         <a href={{ href }}>
-                            <b class="theme smallest-text">Switch to change logs</b>
+                            <b class="theme smallest-text">Switch to Users view</b>
                         </a>
                     </td>
                     <!-- END of Change Log Switcher -->
                 </tr>
             </table>
-            <table class="table-responsive" style="margin-left: 10px">
+            <table class="table-responsive" style="margin-left: 10px" id="table-users-changelog">
                 <tr>
-                    <th id="servers-col" class="medium-double-border em-horiz-table-header vert-grad" style="min-width: 160px">
-                         <b id="servers-col-sort" class="fas fa-sort"> server</b>
+                    <th id="server_name-col" class="medium-double-border em-horiz-table-header vert-grad large-text" style="min-width: 160px">
+                         <b id="server_name-col-sort" class="fas fa-sort smaller-text"> server name</b>
                     </th>
-                    {%- for attr in user_query[0].get_columns()[3:] %}
-                    {%- set col_name = attr + "-col" %}
-                    <th id={{ col_name }} class="medium-double-border em-horiz-table-header vert-grad">
+                    {%- for column in user_changes.get_all_columns_but('server_name') %}
+                    {%- set col_name = column + "-col" %}
+                    <th id={{ col_name }} class="medium-double-border em-horiz-table-header vert-grad large-text">
                         {%- set text = '{}-sort'.format(col_name) %}
-                        <b id={{ text }} class="fas fa-sort"> {{ attr.replace("_", " ") }}</b>
+                        <b id={{ text }} class="fas fa-sort"> {{ column.replace("_", " ") }}</b>
                     </th>
                     {%- endfor %}
                 </tr>
-                {%- for userobj in user_query %}
-                {%- set row_name = userobj.server_name + "-row"%}
-                <tr id={{ row_name }}>
+                {%- for changes in user_changes.filter_by_user(user) %}
                     <td class="medium-double-border em-vert-table-header horiz-grad right">
-                        <p class="smaller-text right bold">{{ userobj.server_name }}</p>
+                        <p class="smaller-text right bold">{{ changes[0] }}</p>
                     </td>
-                    {%- for attr in user_query[0].get_columns()[3:] %}
-                    {%- set cell_id = userobj.server_name + "_" + attr %}
-                    <td id={{ cell_id }} class="em-table-content thin-dashed-border ">
-                        <p class="smallest-text">{{ userobj.get_column_value('{}'.format(attr)) }}</p>
+                    {%- for change in changes[1:] %}
+                    {%- set cell_id = "{}_{}".format(changes[0], attr) %}
+                    <td class="em-table-content thin-dashed-border ">
+                        <p class="smallest-text">{{ change }}</p>
                     </td>
                     {%- endfor %}
                 </tr>
@@ -82,7 +91,7 @@
                     <table style="min-width: 100%;">
                         <tr>
                             <td class="white bold left" id="filter-bar">
-                                <b class="fas fa-cog largest-text"> Table Settings</b>
+                                <b class="fas fa-cog largest-text"> Table Filters</b>
                             </td>
                             <td class="right">
                                 <b id="filter-close" class="fa fa-window-close fa-2x theme"></b>
@@ -110,9 +119,9 @@
                                             <td class="left">
                                                 <p><b> Included Servers: </b></p>
                                                 <select multiple name="select" id="select-servers-included" size="10">
-                                                    {%- for userobj in user_query %}
-                                                    <option class="themed-hover" value={{ userobj.server_name }} />
-                                                        {{ userobj.server_name }}
+                                                    {%- for server in user_changes.get_servers_by_user(user) %}
+                                                    <option class="themed-hover" value={{ server }} />
+                                                        {{ server }}
                                                     </option>
                                                     {% endfor %}
                                                 </select>
@@ -149,11 +158,11 @@
                                     <table>
                                         <tr>
                                             <td class="left">
-                                                <p><b> Included Attributes: </b></p>
+                                                <p><b> Included Columns: </b></p>
                                                 <select multiple name="select" id="select-attr-included" size="10">
-                                                    {%- for attr in user_query[0].get_columns()[3:] %}
-                                                    <option class="themed-hover" value={{ attr }} />
-                                                    {{ attr }}
+                                                    {%- for column in user_changes.get_columns() %}
+                                                    <option class="themed-hover" value={{ column }} />
+                                                    {{ column }}
                                                     </option>
                                                     {%- endfor %}
                                                 </select>
@@ -175,9 +184,42 @@
                                     <!-- END of include / exclude attributes list -->
                                 </div>
                             </div>
-                         </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading themed-hover">
+                                <h4 class="panel-title theme">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
+                                        <b class="fa fa-filter"> Select Date Range </b>
+                                        <b class="fas fa-caret-down"></b>
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse3" class="panel-collapse collapse theme">
+                                <div class="panel-body">
+                                    <!-- include / exclude attributes list -->
+                                    <table>
+                                        <tr>
+                                            <td class="left">
+                                                <p><b> Start Date: </b></p>
+                                                <input id="input-startdate" type="date" min="2018-12-01">
+                                            </td>
+                                            <td class="left">
+                                                <p><b> End Date: </b></p>
+                                                <input id="input-enddate" type="date" min="2018-12-01">
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- END of include / exclude attributes list -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <!-- End of 'Accordion' to display Filters -->
+
+                    <!-- Error Box -->
+                    <div id="error-box" class="error-bg">
+                    </div>
+                    <!-- END of Error Box -->
 
                     <!-- Apply / Cancel / Reset Buttons -->
                     <button id="btn-ff-apply" type="button" class="themed-hover bg-theme btn-filter-form float-left">
@@ -198,7 +240,6 @@
             <div id="shadow-layer">
             </div>
             <!-- END of Shadow layer when Filter form is active -->
-
-            <script src="/static/js/users.js"></script>
             <script src="/static/js/tablehandler.js"></script>
+            <script src="/static/js/users-changelog.js"></script>
 {%- endblock %}
