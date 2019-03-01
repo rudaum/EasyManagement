@@ -1,40 +1,192 @@
 {% extends 'layouts/base.html' %}
-{% block title %}Easy Manager - Servers{% endblock %}
+{% block title %}Easy Manager - Servers Overview{% endblock %}
 {% block body %}
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/users.css') }}">
-        <div class="container">
-            <div class="tab-content">
-                <table class="table table-hover table-responsive table-bordered">
-                    <thead>
+            <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tables.css') }}">
+            <table id="filter-table">
+                <tr>
+                    <!-- Server selection dropdown list -->
+                    <td class="thin-border theme themed-hover">
+                        <ul class="em-dropdown-cell em-dropdown">
+                            <li class="text-large ">
+                                <a data-toggle="dropdown" class="theme" href="#">
+                                    <b class="fa fa-server"></b><b class="largest-text"> {{ server }} </b>
+                                    <b class="fas fa-caret-down"></b>
+                                </a>
+                                <ul class="dropdown-menu" id="user-dropdown-menu">
+                                    <input class="form-control" id="userFilter" type="text" placeholder="Search server ...">
+                                    <li><a class="theme" href="/servers"> ALL </a></li>
+                                    {%- for server_name in server_man.get_servers_names() %}
+                                    {%- set hrefstr = "/servers/" + server_name %}
+                                    <li><a class="theme" href={{ hrefstr }}>{{ server_name }}</a></li>
+                                    {%- endfor %}
+                                </ul>
+                            </li>
+                        </ul>
+                    </td>
+                    <!-- END of USER selection dropdown list -->
+
+                    <!-- Table filter button -->
+                    <td id="settings-cell" class="thin-border theme">
+                        <a class="theme" href="#">
+                            <b id="filter-button" class="fas fa-cog white fa-2x theme-shadow"></b>
+                        </a>
+                    </td>
+                    <!-- END of Table filter button -->
+                </tr>
+            </table>
+            <table class="table-responsive" style="margin-left: 10px">
+                <tr>
+                    <th id="servers-col" class="medium-double-border em-horiz-table-header vert-grad" style="min-width: 160px">
+                         <b id="servers-col-sort" class="fas fa-sort"> server</b>
+                    </th>
+                    {%- for attr in server_man.get_columns()[1:] %}
+                    {%- set col_name = attr + "-col" %}
+                    <th id={{ col_name }} class="medium-double-border em-horiz-table-header vert-grad">
+                        {%- set text = '{}-sort'.format(col_name) %}
+                        <b id={{ text }} class="fas fa-sort"> {{ attr.replace("_", " ") }}</b>
+                    </th>
+                    {%- endfor %}
+                </tr>
+                {%- for server in server_man.servers_query %}
+                {%- set row_name = server.name + "-row"%}
+                <tr id={{ row_name }}>
+                    <td class="medium-double-border em-vert-table-header horiz-grad right">
+                        {%- set hrefstr = "/servers/" + server.name %}
+                        <a href={{ hrefstr }} class="smaller-text right bold black">{{ server.name }}</a>
+                    </td>
+                    {%- for attr in server_man.get_columns()[1:] %}
+                    {%- set cell_id = server.name + "_" + attr %}
+                    <td id={{ cell_id }} class="em-table-content thin-dashed-border ">
+                        <p class="smallest-text">{{ server.get_column_value('{}'.format(attr)) }}</p>
+                    </td>
+                    {%- endfor %}
+                </tr>
+                {%- endfor %}
+            </table>
+
+            <!-- Draggable FORM FILTER -->
+            <div id="draggable-filter" class="medium-double-border">
+                <div id="draggable-filter-header" class="horiz-grad">
+                    <table style="min-width: 100%;">
                         <tr>
-                            <th id="#name">Name</th>
-                            <th id="#ipaddress">Ipaddress</th>
-                            <th id="#oslevel">Oslevel</th>
-                            <th id="#cores">Cores</th>
-                            <th id="#vprocs">Vprocs</th>
-                            <th id="#cpu_type">Cpu_type</th>
-                            <th id="#cpu_mode">Cpu_mode</th>
-                            <th id="#memory">Memory</th>
-                            <th id="#iscluster">Cluster</th>
+                            <td class="white bold left" id="filter-bar">
+                                <b class="fas fa-cog largest-text"> Table Settings</b>
+                            </td>
+                            <td class="right">
+                                <b id="filter-close" class="fa fa-window-close fa-2x theme"></b>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for srv_name, attrs in servers_dict.iteritems() %}
-                        <tr>
-                            <th>{{ srv_name }}</th>
-                            <td>{{ attrs.ipaddress }}</td>
-                            <td>{{ attrs.oslevel }}</td>
-                            <td>{{ attrs.cores }}</td>
-                            <td>{{ attrs.vprocs }}</td>
-                            <td>{{ attrs.cpu_type }}</td>
-                            <td>{{ attrs.cpu_mode }}</td>
-                            <td>{{ attrs.memory }}</td>
-                            <td>{{ attrs.cluster_name }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                    </table>
+                </div>
+                <div>
+                    <!-- 'Accordion' to display Filters -->
+                    <div class="panel-group" id="accordion">
+                        <div class="panel panel-default">
+                            <div class="panel-heading themed-hover">
+                                <h4 class="panel-title theme">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+                                        <b class="fa fa-filter"> Select Servers </b>
+                                        <b class="fas fa-caret-down"></b>
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse1" class="panel-collapse collapse theme">
+                                <div class="panel-body">
+                                    <!-- include / exclude servers list -->
+                                    <table>
+                                        <tr>
+                                            <td class="left">
+                                                <p><b> Included Servers: </b></p>
+                                                <select multiple name="select" id="select-servers-included" size="10">
+                                                    {%- for server in server_man.servers_query %}
+                                                    <option class="themed-hover" value={{ server.name }} />
+                                                        {{ server.name }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                                <p class="left">
+                                                    <button id="button-servers-exclude">Exclude >></button>
+                                                </p>
+                                            </td>
+                                            <td class="left">
+                                                <p><b> Excluded Servers: </b></p>
+                                                <select multiple name="select" id="select-servers-excluded" size="10">
+                                                </select>
+                                                <p class="left">
+                                                    <button id="button-servers-include"><< Include</button>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- END of include / exclude servers list -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading themed-hover">
+                                <h4 class="panel-title theme">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
+                                        <b class="fa fa-filter"> Select Columns </b>
+                                        <b class="fas fa-caret-down"></b>
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse2" class="panel-collapse collapse theme">
+                                <div class="panel-body">
+                                    <!-- include / exclude attributes list -->
+                                    <table>
+                                        <tr>
+                                            <td class="left">
+                                                <p><b> Included Attributes: </b></p>
+                                                <select multiple name="select" id="select-attr-included" size="10">
+                                                    {%- for attr in server_man.get_columns()[1:] %}
+                                                    <option class="themed-hover" value={{ attr }} />
+                                                    {{ attr }}
+                                                    </option>
+                                                    {%- endfor %}
+                                                </select>
+
+                                                <p class="left">
+                                                    <button id="button-attr-exclude">Exclude >></button>
+                                                </p>
+                                            </td>
+                                            <td class="left">
+                                                <p><b> Excluded Attributes: </b></p>
+                                                <select multiple name="select" id="select-attr-excluded" size="10">
+                                                </select>
+                                                <p class="left">
+                                                    <button id="button-attr-include"><< Include</button>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- END of include / exclude attributes list -->
+                                </div>
+                            </div>
+                         </div>
+                    </div>
+                    <!-- End of 'Accordion' to display Filters -->
+
+                    <!-- Apply / Cancel / Reset Buttons -->
+                    <button id="btn-ff-apply" type="button" class="themed-hover bg-theme btn-filter-form float-left">
+                        <b class="fa fa-check theme"> Apply Filter</b>
+                    </button>
+                    <button id="btn-ff-reset" type="button" class="themed-hover bg-theme float-right btn-filter-form">
+                        <b class="fa fa-recycle theme"> Reset</b>
+                    </button>
+                    <button id="btn-ff-cancel" type="button" class="themed-hover bg-theme float-right btn-filter-form">
+                        <b class="fa fa-ban theme"> Cancel</b>
+                    </button>
+                    <!-- END of Apply / Cancel / Reset Buttons -->
+                </div>
             </div>
-        </div>
-        <script src="/static/js/template-users.js"></script>
-{% endblock %}
+            <!-- END of Draggable FORM FILTER -->
+
+            <!-- Shadow layer when Filter form is active -->
+            <div id="shadow-layer">
+            </div>
+            <!-- END of Shadow layer when Filter form is active -->
+
+            <script src="/static/js/servers.js"></script>
+            <script src="/static/js/tablehandler.js"></script>
+{%- endblock %}

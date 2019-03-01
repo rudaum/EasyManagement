@@ -1,40 +1,28 @@
 {% extends 'layouts/base.html' %}
-{% block title %}
-    {%- if user == '-ALL-' %}
-        Easy Manager - users-changelog
-    {%- else %}
-        Easy Manager - users-changelog/{{ user }}
-    {%- endif %}
-{% endblock %}
-
+{% block title %}Easy Manager - rpms/{{ rpm }}{% endblock %}
 {% block body %}
             <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tables.css') }}">
             <table id="filter-table">
                 <tr>
-                    <!-- USER selection dropdown list -->
+                    <!-- RPM selection dropdown list -->
                     <td class="thin-border theme themed-hover">
                         <ul class="em-dropdown-cell em-dropdown">
-                            <li class="dropdown text-large ">
-                                <a data-toggle="dropdown" class="theme nodeco" href="#">
-                                    {%- if user == '-ALL-' %}
-                                    <b class="fa fa-user"></b><b class="nodeco largest-text"> Select an User</b>
-                                    {%- else %}
-                                    <b class="fa fa-user"></b><b class="nodeco largest-text"> {{ user }}</b>
-                                    {%- endif %}
+                            <li class="text-large ">
+                                <a data-toggle="dropdown" class="theme" href="#">
+                                    <b class="fab fa-redhat"></b><b class="largest-text"> {{ rpm }} </b>
                                     <b class="fas fa-caret-down"></b>
                                 </a>
                                 <ul class="dropdown-menu" id="user-dropdown-menu">
-                                    <input class="form-control" id="user-changelogFilter" type="text" placeholder="Search user ...">
-                                    <li><a class="theme" href="/users-changelog">-ALL-</a></li>
-                                    {%- for user in user_changes.get_uniq_users() %}
-                                    {%- set hrefstr = "/users-changelog/" + user %}
-                                    <li><a class="theme" href={{ hrefstr }}>{{ user }}</a></li>
+                                    <input class="form-control" id="userFilter" type="text" placeholder="Search rpm ...">
+                                    {%- for uniq_rpm in uniq_rpms %}
+                                    {%- set hrefstr = "/rpms/" + uniq_rpm %}
+                                    <li><a class="theme" href={{ hrefstr }}>{{ uniq_rpm }}</a></li>
                                     {%- endfor %}
                                 </ul>
                             </li>
                         </ul>
                     </td>
-                    <!-- END of USER selection dropdown list -->
+                    <!-- END of RPM selection dropdown list -->
 
                     <!-- Table filter button -->
                     <td id="settings-cell" class="thin-border theme">
@@ -43,51 +31,50 @@
                         </a>
                     </td>
                     <!-- END of Table filter button -->
+
                     <!-- Change Log Switcher -->
-                    {%- if user == '-ALL-' %}
-                        {%- set href = "/users" %}
+                    {%- if rpm == '-ALL-' %}
+                        {%- set href = "/rpms-changelog" %}
                     {%- else %}
-                        {%- set href = "/users/" + user %}
+                        {%- set href = "/rpms-changelog/" + rpm %}
                     {%- endif %}
                     <td style="padding: 10px">
                         <a href={{ href }}>
-                            <b class="theme smallest-text">Switch to Users view</b>
+                            <b class="theme smallest-text">Switch to change logs</b>
                         </a>
                     </td>
                     <!-- END of Change Log Switcher -->
                 </tr>
             </table>
-
-            <!-- MAIN table with the Change logs -->
-            <table class="table-responsive" style="margin-left: 10px" id="table-users-changelog">
+            <table class="table-responsive" style="margin-left: 10px">
                 <tr>
-                    <th id="server_name-col" class="medium-double-border em-horiz-table-header vert-grad large-text" style="min-width: 160px">
-                         <b id="server_name-col-sort" class="fas fa-sort smaller-text"> server name</b>
+                    <th id="servers-col" class="medium-double-border em-horiz-table-header vert-grad" style="min-width: 160px">
+                         <b id="servers-col-sort" class="fas fa-sort"> server</b>
                     </th>
-                    {%- for column in user_changes.get_all_columns_but('server_name') %}
-                    {%- set col_name = column + "-col" %}
-                    <th id={{ col_name }} class="medium-double-border em-horiz-table-header vert-grad large-text">
+                    {%- for attr in rpm_query[0].get_columns()[3:] %}
+                    {%- set col_name = attr + "-col" %}
+                    <th id={{ col_name }} class="medium-double-border em-horiz-table-header vert-grad">
                         {%- set text = '{}-sort'.format(col_name) %}
-                        <b id={{ text }} class="fas fa-sort"> {{ column.replace("_", " ") }}</b>
+                        <b id={{ text }} class="fas fa-sort"> {{ attr.replace("_", " ") }}</b>
                     </th>
                     {%- endfor %}
                 </tr>
-                {%- for changes in user_changes.filter_by_user(user) %}
-                <tr id="row-{{ loop.index + 1 }}">
+                {%- for rpmobj in rpm_query %}
+                {%- set row_name = rpmobj.server_name + "-row"%}
+                <tr id={{ row_name }}>
                     <td class="medium-double-border em-vert-table-header horiz-grad right">
-                        <p class="smaller-text right bold">{{ changes[0] }}</p>
+                        {%- set href = "/servers/" + rpmobj.server_name %}
+                        <a href={{ href }} class="smaller-text right bold">{{ rpmobj.server_name }}</a>
                     </td>
-                    <!-- Feeding the table with the changes, but skipping 'server name' and 'change type' -->
-                    {%- for change in changes[1:7] %}
-                    {%- set cell_id = "{}_{}".format(changes[0], attr) %}
-                    <td class="em-table-content thin-dashed-border ">
-                        <p class="smallest-text">{{ change }}</p>
+                    {%- for attr in rpm_query[0].get_columns()[3:] %}
+                    {%- set cell_id = rpmobj.server_name + "_" + attr %}
+                    <td id={{ cell_id }} class="em-table-content thin-dashed-border ">
+                        <p class="smallest-text">{{ rpmobj.get_column_value('{}'.format(attr)) }}</p>
                     </td>
                     {%- endfor %}
                 </tr>
                 {%- endfor %}
             </table>
-            <!-- END of MAIN table with the Change logs -->
 
             <!-- Draggable FORM FILTER -->
             <div id="draggable-filter" class="medium-double-border">
@@ -95,7 +82,7 @@
                     <table style="min-width: 100%;">
                         <tr>
                             <td class="white bold left" id="filter-bar">
-                                <b class="fas fa-cog largest-text"> Table Filters</b>
+                                <b class="fas fa-cog largest-text"> Table Settings</b>
                             </td>
                             <td class="right">
                                 <b id="filter-close" class="fa fa-window-close fa-2x theme"></b>
@@ -123,9 +110,9 @@
                                             <td class="left">
                                                 <p><b> Included Servers: </b></p>
                                                 <select multiple name="select" id="select-servers-included" size="10">
-                                                    {%- for server in user_changes.get_servers_by_user(user) %}
-                                                    <option class="themed-hover" value={{ server }} >
-                                                        {{ server }}
+                                                    {%- for rpmobj in rpm_query %}
+                                                    <option class="themed-hover" value={{ rpmobj.server_name }} />
+                                                        {{ rpmobj.server_name }}
                                                     </option>
                                                     {% endfor %}
                                                 </select>
@@ -162,11 +149,11 @@
                                     <table>
                                         <tr>
                                             <td class="left">
-                                                <p><b> Included Columns: </b></p>
+                                                <p><b> Included Attributes: </b></p>
                                                 <select multiple name="select" id="select-attr-included" size="10">
-                                                    {%- for column in user_changes.get_columns() %}
-                                                    <option class="themed-hover" value={{ column }} >
-                                                    {{ column }}
+                                                    {%- for attr in rpm_query[0].get_columns()[3:] %}
+                                                    <option class="themed-hover" value={{ attr }} />
+                                                    {{ attr }}
                                                     </option>
                                                     {%- endfor %}
                                                 </select>
@@ -188,42 +175,9 @@
                                     <!-- END of include / exclude attributes list -->
                                 </div>
                             </div>
-                        </div>
-                        <div class="panel panel-default">
-                            <div class="panel-heading themed-hover">
-                                <h4 class="panel-title theme">
-                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
-                                        <b class="fa fa-filter"> Select Date Range </b>
-                                        <b class="fas fa-caret-down"></b>
-                                    </a>
-                                </h4>
-                            </div>
-                            <div id="collapse3" class="panel-collapse collapse theme">
-                                <div class="panel-body">
-                                    <!-- include / exclude attributes list -->
-                                    <table>
-                                        <tr>
-                                            <td class="left">
-                                                <p><b> Start Date: </b></p>
-                                                <input id="input-startdate" type="date" min="2018-12-01">
-                                            </td>
-                                            <td class="left">
-                                                <p><b> End Date: </b></p>
-                                                <input id="input-enddate" type="date" min="2018-12-01">
-                                            </td>
-                                        </tr>
-                                    </table>
-                                    <!-- END of include / exclude attributes list -->
-                                </div>
-                            </div>
-                        </div>
+                         </div>
                     </div>
                     <!-- End of 'Accordion' to display Filters -->
-
-                    <!-- Error Box -->
-                    <div id="error-box" class="error-bg">
-                    </div>
-                    <!-- END of Error Box -->
 
                     <!-- Apply / Cancel / Reset Buttons -->
                     <button id="btn-ff-apply" type="button" class="themed-hover bg-theme btn-filter-form float-left">
@@ -244,6 +198,7 @@
             <div id="shadow-layer">
             </div>
             <!-- END of Shadow layer when Filter form is active -->
+
+            <script src="/static/js/rpms.js"></script>
             <script src="/static/js/tablehandler.js"></script>
-            <script src="/static/js/users-changelog.js"></script>
 {%- endblock %}

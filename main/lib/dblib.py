@@ -18,7 +18,7 @@
 ### START OF MODULE IMPORTS ###
 # --------------------------------------------------------------- #
 from collections import OrderedDict
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, BigInteger
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, BigInteger, Float
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import text
@@ -26,7 +26,7 @@ from sqlalchemy.sql import text
 ### END OF MODULE IMPORTS
 ## DB Section
 DBURI = "mysql://easymanager:q1w2e3r4@denotsl90.int.kn/easymanagement"
-DBENGINE = create_engine(DBURI)
+DBENGINE = create_engine(DBURI, pool_size=50)
 DBASE = declarative_base()
 DBSession = sessionmaker(bind=DBENGINE)()
 ### END OF MODULE IMPORTS ###
@@ -49,9 +49,11 @@ def query_all_from(_class):
     """
     result_dict = OrderedDict()
     # Feeding the dictionary with the already existing servers records.
+    # global DBSession
+    DBSession.connection()
     for entry in eval('DBSession.query({}).order_by({}.name)'.format(_class, _class)):
         result_dict[entry.name] = entry
-
+    DBSession.close()
     return result_dict
 # --------------------------------------------------------------- #
 
@@ -62,9 +64,12 @@ def query_distinct_from(table_class, column):
     Purpose:
         Queries the Database for UNIQUE entries that match single Attribute and returns a list of results
     """
+    # global DBSession
+    DBSession.connection()
     query = eval('DBSession.query({}.{}).distinct()'
                  .format(table_class, column))
     result = [item[0] for item in query.all()]
+    DBSession.close()
     return result
 # --------------------------------------------------------------- #
 
@@ -76,12 +81,13 @@ def destroy_table(_class):
         ** CAUTION ** This WILL destroy the Representative's Table and all its contents!
     Parameters:
     """
-    global DBSession
+    # global DBSession
     DBSession.execute(text('SET FOREIGN_KEY_CHECKS = 0;'))
     DBSession.close()
     _class.__table__.drop(DBENGINE)
-    DBSession = sessionmaker(bind=DBENGINE)()
+    DBSession.connection()
     DBSession.execute(text('SET FOREIGN_KEY_CHECKS = 1;'))
+    DBSession.close()
 # ------------------------------------------------------- #
 
 
@@ -94,11 +100,15 @@ def update_servers(hostsdict):
     Parameters:
         A Dictionary containing Server Instances
     """
+    # global DBSession
+    DBSession.connection()
+
     # Feeding the dictionary with the already existing servers records.
     for server in hostsdict.keys():
         # Updating the Database with the values.
         DBSession.add(hostsdict[server])
     DBSession.commit()
+    DBSession.close()
 # --------------------------------------------------------------- #
 
 
@@ -112,12 +122,14 @@ def update_users(usersdict):
         A Dictionary containing Server Instances
     """
     # Feeding the dictionary with the already existing servers records.
-
+    # global DBSession
+    DBSession.connection()
     DBSession.rollback()
     for user in usersdict.keys():
         # Updating the Database with the values.
         DBSession.add(usersdict[user])
     DBSession.commit()
+    DBSession.close()
 # --------------------------------------------------------------- #
 ### END OF FUNCTIONS DECLARATION ###
 
@@ -157,7 +169,10 @@ class Cluster(DBASE):
             ** CAUTION ** This WILL destroy the Representative's Table and all its contents!
         Parameters:
         """
+        # global DBSession
+        DBSession.connection()
         self.__table__.drop(DBENGINE)
+        DBSession.close()
 
     def self_create(self):
         """
@@ -165,7 +180,10 @@ class Cluster(DBASE):
             Creates the Representative's Table
         Parameters:
         """
+        # global DBSession
+        DBSession.connection()
         self.__table__.create(DBENGINE)
+        DBSession.close()
 
     def get_column_values(self, column):
         """
@@ -189,8 +207,11 @@ class Cluster(DBASE):
         Purpose:
             Queries the Database for all entries that match single Attribute and returns a list of results
         """
+        # global DBSession
+        DBSession.connection()
         query = eval('DBSession.query({}).filter({}.{} == "{}")'
                      .format(type(self).__name__, type(self).__name__, attr_name, attr_value))
+        DBSession.close()
         return query.all()
 
     def update(self):
@@ -198,11 +219,17 @@ class Cluster(DBASE):
         Purpose:
             Updates and commits the database with the current Object Instance's Values
         """
+        # global DBSession
+        DBSession.connection()
         DBSession.add(self)
         DBSession.commit()
+        DBSession.close()
 
     def custom_query(self, custom_query):
+        # global DBSession
+        DBSession.connection()
         query = eval('DBSession.query({}).filter({})').format(type(self).__name__, custom_query)
+        DBSession.close()
         return query.all()
 
     def query_all(self):
@@ -213,9 +240,12 @@ class Cluster(DBASE):
         Parameters:
         """
         hostsdict = OrderedDict()
+        # global DBSession
+        DBSession.connection()
         # Feeding the dictionary with the already existing Clusters records.
         for entry in DBSession.query(type(self)).order_by(type(self).name):
             hostsdict[entry.name] = entry
+        DBSession.close()
         return hostsdict
 # --------------------------------------------------------------- #
 
@@ -232,7 +262,7 @@ class Server(DBASE):
     name = Column(String(32), primary_key=True)
     ipaddress = Column(String(16))
     oslevel = Column(String(20))
-    cores = Column(Integer)
+    cores = Column(Float(2))
     vprocs = Column(Integer)
     cpu_type = Column(String(20))
     cpu_mode = Column(String(20))
@@ -255,7 +285,7 @@ class Server(DBASE):
         """
         self.__table__.create(DBENGINE)
 
-    def get_column_values(self, column):
+    def get_column_value(self, column):
         """
         Purpose:
             Retrieves the current value of this instance's column's value. But not from the DB
@@ -277,8 +307,11 @@ class Server(DBASE):
         Purpose:
             Queries the Database for all entries that match single Attribute and returns a list of results
         """
+        # global DBSession
+        DBSession.connection()
         query = eval('DBSession.query({}).filter({}.{} == "{}")'
                      .format(type(self).__name__, type(self).__name__, attr_name, attr_value))
+        DBSession.close()
         return query.all()
 
     def update(self):
@@ -286,11 +319,17 @@ class Server(DBASE):
         Purpose:
             Updates and commits the database with the current Object Instance's Values
         """
+        # global DBSession
+        DBSession.connection()
         DBSession.add(self)
         DBSession.commit()
+        DBSession.close()
 
     def custom_query(self, custom_query):
+        # global DBSession
+        DBSession.connection()
         query = eval('DBSession.query({}).filter({})').format(type(self).__name__, custom_query)
+        DBSession.close()
         return query.all()
 
     def query_all(self):
@@ -300,11 +339,87 @@ class Server(DBASE):
 
         Parameters:
         """
-        hostsdict = OrderedDict()
+        # hostsdict = OrderedDict()
         # Feeding the dictionary with the already existing servers records.
-        for entry in DBSession.query(type(self)).order_by(type(self).name):
-            hostsdict[entry.name] = entry
-        return hostsdict
+        # global DBSession
+        DBSession.connection()
+        result = DBSession.query(type(self)).order_by(type(self).name)
+        DBSession.close()
+        return result
+# --------------------------------------------------------------- #
+
+
+# --------------------------------------------------------------- #
+class ServerChanges(DBASE):
+    """
+    Purpose:
+        Represents an User Changes in an AIX Server
+    """
+    __tablename__ = 'server_changes'
+    # Here we define columns for the table servers
+    # Notice that each column is also a normal Python instance attribute.
+    id = Column(Integer(), primary_key=True, autoincrement=True)
+    server_name = Column(String(1024), nullable=False)
+    level = Column(String(1024), nullable=False)
+    attribute_name = Column(String(1024), nullable=False)
+    new_value = Column(String(1024), nullable=False)
+    old_value = Column(String(1024), nullable=False)
+    detected_on = Column(DateTime(), nullable=False)
+
+    def self_destruct(self):
+        """
+        Purpose:
+            ** CAUTION ** This WILL destroy the Representative's Table and all its contents!
+        Parameters:
+        """
+        # global DBSession
+        DBSession.connection()
+        self.__table__.drop(DBENGINE)
+        DBSession.close()
+
+    def query_all(self):
+        """
+        Purpose:
+            Retrieves all entries related to this Class from Database and stores them in an Ordered Dictionary
+
+        Parameters:
+        """
+        # global DBSession
+        DBSession.connection()
+        result = DBSession.query(type(self)).order_by(type(self).id)
+        DBSession.close()
+        return result
+
+    def update(self):
+        """
+        Purpose:
+            Updates and commits the database with the current Object Instance's Values
+        """
+        # global DBSession
+        DBSession.connection()
+        DBSession.add(self)
+        DBSession.commit()
+        DBSession.close()
+
+    def query_by(self, attr_name, attr_value):
+        """
+        Purpose:
+            Queries the Database for all entries that match single Attribute and returns a list of results
+        """
+        # global DBSession
+        DBSession.connection()
+        query = eval('DBSession.query({}).filter({}.{} == "{}")'
+                     .format(type(self).__name__, type(self).__name__, attr_name, attr_value))
+        DBSession.close()
+        return query.all()
+
+    def get_columns(self):
+        """
+        Purpose:
+            Retrieves the columns of a Class Object
+        Parameters:
+        """
+        return self.__table__.columns.keys()
 # --------------------------------------------------------------- #
 
 
@@ -375,7 +490,10 @@ class User(DBASE):
             ** CAUTION ** This WILL destroy the Representative's Table and all its contents!
         Parameters:
         """
+        # global DBSession
+        DBSession.connection()
         self.__table__.drop(DBENGINE)
+        DBSession.close()
 
     def get_column_value(self, column):
         """
@@ -399,8 +517,11 @@ class User(DBASE):
         Purpose:
             Queries the Database for all entries that match single Attribute and returns a list of results
         """
+        # global DBSession
+        DBSession.connection()
         query = eval('DBSession.query({}).filter({}.{} == "{}")'
                      .format(type(self).__name__, type(self).__name__, attr_name, attr_value))
+        DBSession.close()
         return query.all()
 
     def update(self):
@@ -408,12 +529,17 @@ class User(DBASE):
         Purpose:
             Updates and commits the database with the current Object Instance's Values
         """
+        # global DBSession
+        DBSession.connection()
         DBSession.add(self)
         DBSession.commit()
+        DBSession.close()
 
     def custom_query(self, custom_query):
-        print
+        # global DBSession
+        DBSession.connection()
         query = DBSession.query(type(self).__name__).filter(custom_query)
+        DBSession.close()
         return query.all()
 
     def query_all(self):
@@ -423,11 +549,27 @@ class User(DBASE):
 
         Parameters:
         """
-        ordered_dict = OrderedDict()
+        # ordered_dict = OrderedDict()
         # Feeding the dictionary with the already existing Users records.
-        for entry in DBSession.query(type(self)).order_by(type(self).user_server):
-            ordered_dict[entry.user_server] = entry
-        return ordered_dict
+        # for entry in DBSession.query(type(self)).order_by(type(self).user_server):
+        #    ordered_dict[entry.user_server] = entry
+        # return ordered_dict
+        # global DBSession
+        DBSession.connection()
+        result = DBSession.query(type(self)).order_by(type(self).user_server)
+        DBSession.close()
+        return result
+
+    def delete(self):
+        """
+        Purpose:
+            Updates and commits the database with the current Object Instance's Values
+        """
+        # global DBSession
+        DBSession.connection()
+        DBSession.delete(self)
+        DBSession.commit()
+        DBSession.close()
 # --------------------------------------------------------------- #
 
 
@@ -455,23 +597,33 @@ class UserChanges(DBASE):
 
         Parameters:
         """
-        return DBSession.query(type(self)).order_by(type(self).id)
+        # global DBSession
+        DBSession.connection()
+        result = DBSession.query(type(self)).order_by(type(self).id)
+        DBSession.close()
+        return result
 
     def update(self):
         """
         Purpose:
             Updates and commits the database with the current Object Instance's Values
         """
+        # global DBSession
+        DBSession.connection()
         DBSession.add(self)
         DBSession.commit()
+        DBSession.close()
 
     def query_by(self, attr_name, attr_value):
         """
         Purpose:
             Queries the Database for all entries that match single Attribute and returns a list of results
         """
+        # global DBSession
+        DBSession.connection()
         query = eval('DBSession.query({}).filter({}.{} == "{}")'
                      .format(type(self).__name__, type(self).__name__, attr_name, attr_value))
+        DBSession.close()
         return query.all()
 
     def get_columns(self):
@@ -498,7 +650,9 @@ class RPM(DBASE):
     rpm = Column(String(256), nullable=False)
     version = Column(String(32), nullable=False)
     release = Column(String(32), nullable=False)
-    build_date = Column(String(120))
+    install_date = Column(DateTime(), nullable=False)
+    license = Column(String(256))
+    build_date = Column(String(256))
     build_host = Column(String(120))
     relocations = Column(String(256))
 
@@ -508,7 +662,10 @@ class RPM(DBASE):
             ** CAUTION ** This WILL destroy the Representative's Table and all its contents!
         Parameters:
         """
+        # global DBSession
+        DBSession.connection()
         self.__table__.drop(DBENGINE)
+        DBSession.close()
 
     def get_column_value(self, column):
         """
@@ -532,8 +689,11 @@ class RPM(DBASE):
         Purpose:
             Queries the Database for all entries that match single Attribute and returns a list of results
         """
+        # global DBSession
+        DBSession.connection()
         query = eval('DBSession.query({}).filter({}.{} == "{}")'
                      .format(type(self).__name__, type(self).__name__, attr_name, attr_value))
+        DBSession.close()
         return query.all()
 
     def update(self):
@@ -541,11 +701,17 @@ class RPM(DBASE):
         Purpose:
             Updates and commits the database with the current Object Instance's Values
         """
+        # global DBSession
+        DBSession.connection()
         DBSession.add(self)
         DBSession.commit()
+        DBSession.close()
 
     def query(self, custom_query):
+        # global DBSession
+        DBSession.connection()
         query = eval('DBSession.query({}).filter({})').format(type(self).__name__, custom_query)
+        DBSession.close()
         return query.all()
 
     def query_all(self):
@@ -555,9 +721,83 @@ class RPM(DBASE):
 
         Parameters:
         """
-        ordered_dict = OrderedDict()
-        # Feeding the dictionary with the already existing RPM records.
-        for entry in DBSession.query(type(self)).order_by(type(self).rpm_server):
-            ordered_dict[entry.rpm_server] = entry
-        return ordered_dict
+        # global DBSession
+        DBSession.connection()
+        result = DBSession.query(type(self)).order_by(type(self).rpm_server)
+        DBSession.close()
+        return result
+
+    def delete(self):
+        """
+        Purpose:
+            Updates and commits the database with the current Object Instance's Values
+        """
+        # global DBSession
+        DBSession.connection()
+        DBSession.delete(self)
+        DBSession.commit()
+        DBSession.close()
+# --------------------------------------------------------------- #
+
+
+# --------------------------------------------------------------- #
+class RPMChanges(DBASE):
+    """
+    Purpose:
+        Represents an RPM Changes in an AIX Server
+    """
+    __tablename__ = 'rpm_changes'
+    # Here we define columns for the table servers
+    # Notice that each column is also a normal Python instance attribute.
+    id = Column(Integer(), primary_key=True, autoincrement=True)
+    rpm_name = Column(String(1024), nullable=False)
+    server_name = Column(String(1024), nullable=False)
+    attribute_name = Column(String(1024), nullable=False)
+    new_value = Column(String(1024), nullable=False)
+    old_value = Column(String(1024))
+    detected_on = Column(DateTime(), nullable=False)
+
+    def query_all(self):
+        """
+        Purpose:
+            Retrieves all entries related to this Class from Database and stores them in an Ordered Dictionary
+
+        Parameters:
+        """
+        # global DBSession
+        DBSession.connection()
+        result = DBSession.query(type(self)).order_by(type(self).id)
+        DBSession.close()
+        return result
+
+    def update(self):
+        """
+        Purpose:
+            Updates and commits the database with the current Object Instance's Values
+        """
+        # global DBSession
+        DBSession.connection()
+        DBSession.add(self)
+        DBSession.commit()
+        DBSession.close()
+
+    def query_by(self, attr_name, attr_value):
+        """
+        Purpose:
+            Queries the Database for all entries that match single Attribute and returns a list of results
+        """
+        # global DBSession
+        DBSession.connection()
+        query = eval('DBSession.query({}).filter({}.{} == "{}")'
+                     .format(type(self).__name__, type(self).__name__, attr_name, attr_value))
+        DBSession.close()
+        return query.all()
+
+    def get_columns(self):
+        """
+        Purpose:
+            Retrieves the columns of a Class Object
+        Parameters:
+        """
+        return self.__table__.columns.keys()
 # --------------------------------------------------------------- #

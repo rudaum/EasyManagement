@@ -29,17 +29,18 @@
 }
 
 .em-vert-table-header {
-    padding-top: 5px;
-    padding-left: 5px;
-    padding-right: 5px;
+    //padding-top: 5px;
+    //padding-left: 5px;
+    //padding-right: 5px;
 }
 
 .em-horiz-table-header {
     text-align: center;
     min-width: 90px;
     vertical-align: middle;
-    padding-left: 10px;
-    padding-right: 10px;
+    //padding-left: 10px;
+    //padding-right: 10px;
+    white-space: nowrap;
 }
 
 .em-table-content {
@@ -67,6 +68,15 @@
 
 #filter-table a{
     text-decoration: none;
+}
+
+table a:link, a:active, a:hover{
+    text-decoration: none;
+    color: inherit;
+}
+
+table a:hover{
+    text-shadow: 2px 2px 1px #FFFFFF;
 }
 
 .em-dropdown {
@@ -171,3 +181,4 @@
 select {
     width: 100%;
 }
+

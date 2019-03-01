@@ -6,13 +6,6 @@ $(document).ready(function(){
         });
     });
 
-    $('#user-dropdown-menu li').click(function () {
-        if (user != '') {
-            user = $(this).text().toLowerCase();
-            window.location.replace("http://127.0.0.1:5000/users/" + user)
-        };
-    });
-
 
     // --- DRAGGABLE FILTER FORM CAPABILITY --- \\
     filterform_active = false;

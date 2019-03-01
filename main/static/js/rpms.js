@@ -1,35 +1,28 @@
 $(document).ready(function(){
-    $("#user-changelogFilter").on("keyup", function() {
+    $("#userFilter").on("keyup", function() {
         var value = $(this).val().toLowerCase();
         $(".dropdown-menu li").filter(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
     });
 
-        // --- DRAGGABLE FILTER FORM CAPABILITY --- \\
-    var filterform_active = false;
-    var table_filter = document.getElementById("draggable-filter");
-    var panel_base = document.getElementById("panel-base");
-    var shadow = document.getElementById("shadow-layer");
-    var error_box = document.getElementById('error-box');
+    $('#user-dropdown-menu li').click(function () {
+        if (user != '') {
+            user = $(this).text().toLowerCase();
+            window.location.replace("http://127.0.0.1:5000/users/" + user)
+        };
+    });
 
-    function today_str() {
-        today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth()+1; //January is 0!
-        var yyyy = today.getFullYear();
-        if(dd < 10) {
-            dd = '0' + dd;
-        }
-        if(mm < 10) {
-            mm = '0' + mm;
-        }
-        return yyyy + '-' + mm + '-' + dd;
-    }
+
+    // --- DRAGGABLE FILTER FORM CAPABILITY --- \\
+    filterform_active = false;
+    table_filter = document.getElementById("draggable-filter");
+    panel_base = document.getElementById("panel-base");
+    shadow = document.getElementById("shadow-layer");
 
     function deactivate_form() {
-        $(table_filter).css('display', 'none');
-        $(shadow).css('display', 'none');
+        $(table_filter).css('display', 'None');
+        $(shadow).css('display', 'None');
         filterform_active = false;
     };
 
@@ -41,7 +34,6 @@ $(document).ready(function(){
         $(shadow).css('display', 'block');
         $(shadow).css('min-width', panel_base.scrollWidth);
         $(shadow).css('min-height', panel_base.scrollHeight);
-        $(error_box).css('display', 'none');
     };
 
     $("#filter-button").on("click", function(){
@@ -102,7 +94,6 @@ $(document).ready(function(){
         }
     }
     // ---------------------------------------- \\
-
 
     // --- TABLE SETTINGS - SERVERS FILTER --- \\
     $("#button-servers-exclude").click(function(){
@@ -178,109 +169,41 @@ $(document).ready(function(){
 
     // --- TABLE SETTINGS - FORM BUTTONS --- \\
     $("#btn-ff-apply").click(function(){
-        // validating dates ...
-        var proceed = true;
-        var firstday = new Date('2018-12-01 00:00:00')
-        var startdate = new Date(document.getElementById('input-startdate').value + " 00:00:00");
-        var enddate = new Date(document.getElementById('input-enddate').value + " 23:59:59");
-        error_box.innerHTML = '';
+        included_servers = document.getElementById('select-servers-included').options;
+        excluded_servers = document.getElementById('select-servers-excluded').options;
+        included_attrs = document.getElementById('select-attr-included').options;
+        excluded_attrs = document.getElementById('select-attr-excluded').options;
 
-        if (startdate == 'Invalid Date' ) {
-            startdate = firstday;
-            document.getElementById('input-startdate').valueAsDate = startdate;
+        // Processing Filters ...
+
+        for (i = 0; i < included_servers.length; i++) {
+            row_id = "#" + included_servers[i].value + "-row";
+            $(row_id).css('display', '');
         }
 
-        if (enddate == 'Invalid Date' ) {
-            enddate = new Date();
-            enddate.setHours(23, 59, 59, 0);
-            document.getElementById('input-enddate').valueAsDate = enddate;
+        for (i = 0; i < excluded_servers.length; i++) {
+            row_id = "#" + excluded_servers[i].value + "-row";
+            $(row_id).css('display', 'none');
         }
 
-        if (startdate > enddate){
-            error_box.innerHTML = error_box.innerHTML + '<p class="error-font smaller-text left">- Start Date can not be after End Date</p>'
-            proceed = false;
-        }
-
-        if (startdate > new Date()) {
-            error_box.innerHTML = error_box.innerHTML + '<p class="error-font smaller-text left">- Start Date can not be in the future.</p>'
-            proceed = false;
-        }
-
-        if (proceed) {
-            included_servers = document.getElementById('select-servers-included').options;
-            excluded_servers = document.getElementById('select-servers-excluded').options;
-            rows = $('#table-users-changelog tr');
-            columns = $('#table-users-changelog th');
-
-            included_attrs = new Array();
-            sel = document.getElementById('select-attr-included');
-            for (i = 0; i < sel.length; i++) {
-                included_attrs.push(sel.options[i].text);
+        for (i = 0; i < included_attrs.length; i++) {
+            attr_id = included_attrs[i].value;
+            $("#" + attr_id + '-col').css('display', '');
+            for (j = 0; j < included_servers.length; j++) {
+                cell_id = included_servers[j].value + "_" + attr_id;
+                $("#" + cell_id).css('display', '');
             }
-
-            excluded_attrs = new Array();
-            sel = document.getElementById('select-attr-excluded');
-            for (i = 0; i < sel.length; i++) {
-                excluded_attrs.push(sel.options[i].text);
-            }
-
-            // Processing  Servers and Date Filters ...
-            for (i = 1; i < rows.length; i++) {
-                date = new Date(rows[i].getElementsByTagName("TD")[6].getElementsByTagName("P")[0].innerHTML);
-                if (date >= startdate && date <= enddate) {
-                    rows[i].style.display = '';
-                }
-                else {
-                    server = rows[i].getElementsByTagName("TD")[0].getElementsByTagName("P")[0].innerHTML;
-                    for (j = 0; j < included_servers.length; j++) {
-                        if (included_servers[j].value == server) {
-                            rows[i].style.display = '';
-                        }
-                    }
-                }
-            }
-
-            for (i = 1; i < rows.length; i++) {
-                date = new Date(rows[i].getElementsByTagName("TD")[6].getElementsByTagName("P")[0].innerHTML);
-                if (date < startdate || date > enddate) {
-                    rows[i].style.display = 'none';
-                }
-                else {
-                    server = rows[i].getElementsByTagName("TD")[0].getElementsByTagName("P")[0].innerHTML;
-                    for (j = 0; j < excluded_servers.length; j++) {
-                        if (excluded_servers[j].value == server) {
-                            rows[i].style.display = 'none';
-                        }
-                    }
-                }
-            }
-
-
-            // Processing  Columns Filters ...
-            for (i = 0; i < columns.length; i++) {
-                column = columns[i].id.replace('-col', '')
-
-                if (included_attrs.includes(column)) {
-                    rows[0].getElementsByTagName("TH")[i].style.display = '';
-                    for (j = 1; j < rows.length; j++) {
-                        rows[j].getElementsByTagName("TD")[i].style.display = '';
-                    }
-                }
-
-                if (excluded_attrs.includes(column)) {
-                    rows[0].getElementsByTagName("TH")[i].style.display = 'none';
-                    for (j = 1; j < rows.length; j++) {
-                        rows[j].getElementsByTagName("TD")[i].style.display = 'none';
-                    }
-                }
-            }
-
-            error_box.style.display = 'none';
-            deactivate_form();
         }
-        else {
-            error_box.style.display = '';
+
+        for (i = 0; i < excluded_attrs.length; i++) {
+            attr_id = excluded_attrs[i].value;
+            $("#" + attr_id + '-col').css('display', 'none');
+            for (j = 0; j < included_servers.length; j++) {
+                cell_id = included_servers[j].value + "_" + attr_id;
+                $("#" + cell_id).css('display', 'none');
+            }
         }
+        deactivate_form();
     });
 
     $("#btn-ff-reset").click(function(){
@@ -290,14 +213,14 @@ $(document).ready(function(){
         $("#select-attr-excluded > option").each(function(){
             $(this).remove().appendTo("#select-attr-included");
         });
-        document.getElementById('input-startdate').value = '';
-        document.getElementById('input-enddate').value = '';
-        $(error_box).css('display', 'none');
     });
 
     $("#btn-ff-cancel").click(function(){
         deactivate_form();
     });
     // ---------------------------------------- \\
+
+
+
 });
 

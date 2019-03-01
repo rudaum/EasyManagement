@@ -47,6 +47,7 @@ $(document).ready(function(){
     });
     // ---------------------------------------- \\
 
+    already_sorting = false;
     // --- TABLE's COLUMNS SORTING CAPABILITY --- \\
     $(".fa-sort").on("click", function(){
         var table, th, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
@@ -55,77 +56,97 @@ $(document).ready(function(){
         th = document.getElementById(attr);
         switching = true;
 
-        // Set the sorting direction to ascending:
-        dir = "asc";
+        if (! already_sorting ) {
+            already_sorting = true;
+            // Set the sorting direction to ascending:
+            dir = "asc";
 
-        /* Make a loop that will continue until
-        no switching has been done: */
-        while (switching) {
-            // Start by saying: no switching is done:
-            switching = false;
+            /* Make a loop that will continue until
+            no switching has been done: */
+            while (switching) {
+                // Start by saying: no switching is done:
+                switching = false;
 
-            rows = table.rows;
-            /* Loop through all table rows (except the
-            first, which contains table headers): */
-            for (i = 1; i < (rows.length - 1); i++) {
-                // Start by saying there should be no switching:
-                shouldSwitch = false;
+                rows = table.rows;
+                /* Loop through all table rows (except the
+                first, which contains table headers): */
+                for (i = 1; i < (rows.length - 1); i++) {
+                    // Start by saying there should be no switching:
+                    shouldSwitch = false;
 
-                /* Get the two elements you want to compare,
-                one from current row and one from the next: */
-                x = rows[i].getElementsByTagName("TD")[th.cellIndex].getElementsByTagName("p")[0].innerHTML;
-                y = rows[i + 1].getElementsByTagName("TD")[th.cellIndex].getElementsByTagName("p")[0].innerHTML;
+                    /* Get the two elements you want to compare,
+                    one from current row and one from the next: */
+                    x = rows[i].getElementsByTagName("TD")[th.cellIndex].getElementsByTagName("p")[0].innerHTML;
+                    y = rows[i + 1].getElementsByTagName("TD")[th.cellIndex].getElementsByTagName("p")[0].innerHTML;
 
-                /* Check if the two rows should switch place,
-                based on the direction, asc or desc: */
-                if (isNaN(parseFloat(x))) {
-                    if (dir == "asc") {
-                        if (x.toLowerCase() > y.toLowerCase()) {
-                          // If so, mark as a switch and break the loop:
-                          shouldSwitch = true;
-                          break;
+                    /* Check if the two rows should switch place,
+                    based on the direction, asc or desc: */
+                    isDateX = new Date(x)
+                    isDateY = new Date(y)
+                    if (!isNaN(isDateX.valueOf())) {
+                        if (dir == "asc") {
+                            if (isDateX > isDateY) {
+                                // If so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
+                        } else if (dir == "desc") {
+                            if (isDateX < isDateY){
+                                // If so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
                         }
-                    } else if (dir == "desc") {
-                        if (x.toLowerCase() < y.toLowerCase()) {
-                          // If so, mark as a switch and break the loop:
-                          shouldSwitch = true;
-                          break;
+                    } else if (! isNaN(parseFloat(x - 0))) {
+                        if (dir == "asc") {
+                            if (parseFloat(x - y) > 0) {
+                                // If so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
+                        } else if (dir == "desc") {
+                            if (parseFloat(x - y) < 0){
+                                // If so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                            }
+                        }
+                    } else if (isNaN(String(x))) {
+                        if (dir == "asc") {
+                            if (x.toLowerCase() > y.toLowerCase()) {
+                              // If so, mark as a switch and break the loop:
+                              shouldSwitch = true;
+                              break;
+                            }
+                        } else if (dir == "desc") {
+                            if (x.toLowerCase() < y.toLowerCase()) {
+                              // If so, mark as a switch and break the loop:
+                              shouldSwitch = true;
+                              break;
+                            }
                         }
                     }
+
                 }
-                else {
-                    if (dir == "asc") {
-                        if (Number(x) > Number(y)) {
-                          // If so, mark as a switch and break the loop:
-                          shouldSwitch = true;
-                          break;
-                        }
-                    } else if (dir == "desc") {
-                        if (Number(x) < Number(y)){
-                          // If so, mark as a switch and break the loop:
-                          shouldSwitch = true;
-                          break;
-                        }
+                if (shouldSwitch) {
+                    /* If a switch has been marked, make the switch
+                    and mark that a switch has been done: */
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    // Each time a switch is done, increase this count by 1:
+                    switchcount ++;
+                } else {
+                    /* If no switching has been done AND the direction is "asc",
+                    set the direction to "desc" and run the while loop again. */
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
                     }
                 }
             }
-            if (shouldSwitch) {
-              /* If a switch has been marked, make the switch
-              and mark that a switch has been done: */
-              rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-              switching = true;
-              // Each time a switch is done, increase this count by 1:
-              switchcount ++;
-            } else {
-              /* If no switching has been done AND the direction is "asc",
-              set the direction to "desc" and run the while loop again. */
-              if (switchcount == 0 && dir == "asc") {
-                dir = "desc";
-                switching = true;
-              }
-            }
-          }
-        });
+            already_sorting = false;
+        }
+    });
     // ---------------------------------------- \\
 });
 

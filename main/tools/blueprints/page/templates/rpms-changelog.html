@@ -1,9 +1,9 @@
 {% extends 'layouts/base.html' %}
 {% block title %}
-    {%- if user == '-ALL-' %}
-        Easy Manager - users-changelog
+    {%- if rpm == '-ALL-' %}
+        Easy Manager - rpms-changelog
     {%- else %}
-        Easy Manager - users-changelog/{{ user }}
+        Easy Manager - rpms-changelog/{{ rpm }}
     {%- endif %}
 {% endblock %}
 
@@ -11,30 +11,32 @@
             <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tables.css') }}">
             <table id="filter-table">
                 <tr>
-                    <!-- USER selection dropdown list -->
+                    <!-- RPM selection dropdown list -->
                     <td class="thin-border theme themed-hover">
                         <ul class="em-dropdown-cell em-dropdown">
                             <li class="dropdown text-large ">
                                 <a data-toggle="dropdown" class="theme nodeco" href="#">
-                                    {%- if user == '-ALL-' %}
-                                    <b class="fa fa-user"></b><b class="nodeco largest-text"> Select an User</b>
+                                    {%- if rpm == '-ALL-' %}
+                                    <b class="fab fa-redhat"></b><b class="nodeco largest-text"> Select a RPM</b>
                                     {%- else %}
-                                    <b class="fa fa-user"></b><b class="nodeco largest-text"> {{ user }}</b>
+                                    <b class="fa fab-redhat"></b><b class="nodeco largest-text"> {{ rpm }}</b>
                                     {%- endif %}
                                     <b class="fas fa-caret-down"></b>
                                 </a>
                                 <ul class="dropdown-menu" id="user-dropdown-menu">
-                                    <input class="form-control" id="user-changelogFilter" type="text" placeholder="Search user ...">
-                                    <li><a class="theme" href="/users-changelog">-ALL-</a></li>
-                                    {%- for user in user_changes.get_uniq_users() %}
-                                    {%- set hrefstr = "/users-changelog/" + user %}
-                                    <li><a class="theme" href={{ hrefstr }}>{{ user }}</a></li>
+                                    <input class="form-control" id="user-changelogFilter" type="text" placeholder="Search RPM ...">
+                                    <li><a class="theme" href="/rpms-changelog">-ALL-</a></li>
+                                    {%- if rpm_changes != None %}
+                                    {%- for rpm in rpm_changes.get_uniq_rpms() %}
+                                    {%- set hrefstr = "/rpms-changelog/" + rpm %}
+                                    <li><a class="theme" href={{ hrefstr }}>{{ rpm }}</a></li>
                                     {%- endfor %}
+                                    {% endif %}
                                 </ul>
                             </li>
                         </ul>
                     </td>
-                    <!-- END of USER selection dropdown list -->
+                    <!-- END of RPM selection dropdown list -->
 
                     <!-- Table filter button -->
                     <td id="settings-cell" class="thin-border theme">
@@ -44,14 +46,14 @@
                     </td>
                     <!-- END of Table filter button -->
                     <!-- Change Log Switcher -->
-                    {%- if user == '-ALL-' %}
-                        {%- set href = "/users" %}
+                    {%- if rpm == '-ALL-' %}
+                        {%- set href = "/rpms" %}
                     {%- else %}
-                        {%- set href = "/users/" + user %}
+                        {%- set href = "/rpms/" + rpm %}
                     {%- endif %}
                     <td style="padding: 10px">
                         <a href={{ href }}>
-                            <b class="theme smallest-text">Switch to Users view</b>
+                            <b class="theme smallest-text">Switch to RPM view</b>
                         </a>
                     </td>
                     <!-- END of Change Log Switcher -->
@@ -59,20 +61,23 @@
             </table>
 
             <!-- MAIN table with the Change logs -->
-            <table class="table-responsive" style="margin-left: 10px" id="table-users-changelog">
+            <table class="table-responsive" style="margin-left: 10px" id="table-rpms-changelog">
                 <tr>
                     <th id="server_name-col" class="medium-double-border em-horiz-table-header vert-grad large-text" style="min-width: 160px">
                          <b id="server_name-col-sort" class="fas fa-sort smaller-text"> server name</b>
                     </th>
-                    {%- for column in user_changes.get_all_columns_but('server_name') %}
+                    {%- if rpm_changes != None %}
+                    {%- for column in rpm_changes.get_all_columns_but('server_name') %}
                     {%- set col_name = column + "-col" %}
                     <th id={{ col_name }} class="medium-double-border em-horiz-table-header vert-grad large-text">
                         {%- set text = '{}-sort'.format(col_name) %}
                         <b id={{ text }} class="fas fa-sort"> {{ column.replace("_", " ") }}</b>
                     </th>
                     {%- endfor %}
+                    {%- endif %}
                 </tr>
-                {%- for changes in user_changes.filter_by_user(user) %}
+                {%- if rpm_changes != None %}
+                {%- for changes in rpm_changes.filter_by_rpm(rpm) %}
                 <tr id="row-{{ loop.index + 1 }}">
                     <td class="medium-double-border em-vert-table-header horiz-grad right">
                         <p class="smaller-text right bold">{{ changes[0] }}</p>
@@ -86,6 +91,7 @@
                     {%- endfor %}
                 </tr>
                 {%- endfor %}
+                {%- endif %}
             </table>
             <!-- END of MAIN table with the Change logs -->
 
@@ -123,11 +129,13 @@
                                             <td class="left">
                                                 <p><b> Included Servers: </b></p>
                                                 <select multiple name="select" id="select-servers-included" size="10">
-                                                    {%- for server in user_changes.get_servers_by_user(user) %}
+                                                    {%- if rpm_changes != None %}
+                                                    {%- for server in rpm_changes.get_servers_by_rpm(rpm) %}
                                                     <option class="themed-hover" value={{ server }} >
                                                         {{ server }}
                                                     </option>
                                                     {% endfor %}
+                                                    {% endif %}
                                                 </select>
                                                 <p class="left">
                                                     <button id="button-servers-exclude">Exclude >></button>
@@ -164,11 +172,13 @@
                                             <td class="left">
                                                 <p><b> Included Columns: </b></p>
                                                 <select multiple name="select" id="select-attr-included" size="10">
-                                                    {%- for column in user_changes.get_columns() %}
-                                                    <option class="themed-hover" value={{ column }} >
+                                                    {%- if rpm_changes != None %}
+                                                    {%- for column in rpm_changes.get_columns() %}
+                                                    <option class="themed-hover" value={{ column }} />
                                                     {{ column }}
                                                     </option>
                                                     {%- endfor %}
+                                                    {% endif %}
                                                 </select>
 
                                                 <p class="left">
@@ -245,5 +255,5 @@
             </div>
             <!-- END of Shadow layer when Filter form is active -->
             <script src="/static/js/tablehandler.js"></script>
-            <script src="/static/js/users-changelog.js"></script>
+            <script src="/static/js/rpms-changelog.js"></script>
 {%- endblock %}

@@ -1,0 +1,153 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Easy Manager - {{ server.name }} details {% endblock %}
+{% block body %}
+            <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tables.css') }}">
+            <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/server_details.css') }}">
+            <table id="filter-table">
+                <tr>
+                    <!-- SERVER selection dropdown list -->
+                    <td class="thin-border theme themed-hover">
+                        <ul class="em-dropdown-cell em-dropdown">
+                            <li class="text-large ">
+                                <a data-toggle="dropdown" class="theme" href="#">
+                                    <b class="fa fa-server"></b><b class="largest-text"> {{ server.name }} </b>
+                                    <b class="fas fa-caret-down"></b>
+                                </a>
+                                <ul class="dropdown-menu" id="user-dropdown-menu">
+                                    <input class="form-control" id="userFilter" type="text" placeholder="Search server ...">
+                                    {%- for server_name in server_man.get_servers_names() %}
+                                    {%- set hrefstr = "/servers/" + server_name %}
+                                    <li><a class="theme" href={{ hrefstr }}>{{ server_name }}</a></li>
+                                    {%- endfor %}
+                                </ul>
+                            </li>
+                        </ul>
+                    </td>
+                    <!-- END of SERVER selection dropdown list -->
+                </tr>
+            </table>
+
+            <!-- Overall Table -->
+            <table id="table-overall" class="table-responsive">
+                {%- for attr in server_man.get_columns() %}
+                <tr>
+                    <th class="medium-double-border em-horiz-table-header horiz-grad">
+                         <b class="left">{{attr.replace("_", " ").capitalize()}}</b>
+                    </th>
+                    <td class="medium-double-border">
+                        <b>{{ server.get_column_value(attr) }}</b>
+                    </td>
+                </tr>
+                {%- endfor %}
+            </table>
+            <!-- END of Overall Table -->
+
+            <div id="div-last-changes">
+                <p class="theme bold text-large">Latest Changes</p>
+                <!-- Last Changes Table -->
+                <table id="table-last-changes">
+                    <tr>
+                        <th class="medium-double-border vert-grad">
+                            <b class="left">Change Type</b>
+                        </th>
+                        <th class="medium-double-border vert-grad">
+                            <b class="left">Object</b>
+                        </th>
+                        <th class="medium-double-border vert-grad">
+                            <b class="left">Attribute</b>
+                        </th>
+                        <th class="medium-double-border vert-grad">
+                            <b class="left">New Value</b>
+                        </th>
+                        <th class="medium-double-border vert-grad">
+                            <b class="left">Old Value</b>
+                        </th>
+                        <th class="medium-double-border vert-grad">
+                            <b class="left">Detect On</b>
+                        </th>
+                    <tr>
+                    {%- for i in range(5) %}
+                    <tr>
+                        <td class="medium-double-border">
+                             <p class="smallest-text">{{ server_changes[i][7] }}</p>
+                        </td>
+                        <td class="medium-double-border">
+                             <p class="smallest-text">{{ server_changes[i][2] }}</p>
+                        </td>
+                        <td class="medium-double-border">
+                             <p class="smallest-text">{{ server_changes[i][3] }}</p>
+                        </td>
+                        <td class="medium-double-border">
+                             <p class="smallest-text">{{ server_changes[i][4].encode('string-escape')}}</p>
+                        </td>
+                        <td class="medium-double-border">
+                             <p class="smallest-text">{{ server_changes[i][5] }}</p>
+                        </td>
+                        <td class="medium-double-border">
+                            <p class="smallest-text">{{ server_changes[i][6] }}</p>
+                        </td>
+                    </tr>
+                    {%- endfor %}
+                </table>
+                <!-- END of Overall Table -->
+            </div>
+            <div id="div-detail-section">
+                <div class="div-detail-panel ">
+                    <!-- Users Table -->
+                    <p class="theme bold text-large">Users</p>
+                    <div id="div-table-users">
+                        <table id="table-users" class="table-responsive">
+                            <tr>
+                                <th class="medium-double-border vert-grad">
+                                    <b class="left">User Name</b>
+                                </th>
+                                <th class="medium-double-border vert-grad">
+                                    <b class="left">Time Last Login</b>
+                                </th>
+                            <tr>
+                            {%- for user in users %}
+                            <tr>
+                                <td class="medium-double-border">
+                                    <span class="smallest-text"> {{ user.user_name }} </span>
+                                </td>
+                                <td class="medium-double-border">
+                                    <span class="smallest-text"> {{ user.time_last_login }} </span>
+                                </td>
+                            </tr>
+                            {%- endfor %}
+                        </table>
+                    </div>
+                    <!-- END of Users Table -->
+                </div>
+                    <!-- RPMS Table -->
+                <div class="div-detail-panel ">
+                    <p class="theme bold text-large">RPMs</p>
+                    <div id="div-table-rpms">
+                        <table id="table-rpms" class="table-responsive">
+                            <tr>
+                                <th class="medium-double-border vert-grad">
+                                    <b class="left">RPM Name</b>
+                                </th>
+                                <th class="medium-double-border vert-grad">
+                                    <b class="left">Version</b>
+                                </th>
+                            <tr>
+                            {%- for rpm in rpms %}
+                            <tr>
+                                <td class="medium-double-border">
+                                    <span class="smallest-text"> {{ rpm.rpm }} </span>
+                                </td>
+                                <td class="medium-double-border">
+                                    <span class="smallest-text"> {{ rpm.version }} </span>
+                                </td>
+                            </tr>
+                            {%- endfor %}
+                        </table>
+                    </div>
+                    <!-- END of RPMS Table -->
+                </div>
+            </div>
+
+            <script src="/static/js/servers.js"></script>
+            <script src="/static/js/tablehandler.js"></script>
+{%- endblock %}

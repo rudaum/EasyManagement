@@ -64,7 +64,8 @@
                 {%- set row_name = userobj.server_name + "-row"%}
                 <tr id={{ row_name }}>
                     <td class="medium-double-border em-vert-table-header horiz-grad right">
-                        <p class="smaller-text right bold">{{ userobj.server_name }}</p>
+                        {%- set href = "/servers/" + userobj.server_name %}
+                        <a href={{ href }}  class="smaller-text right bold">{{ userobj.server_name }}</a>
                     </td>
                     {%- for attr in user_query[0].get_columns()[3:] %}
                     {%- set cell_id = userobj.server_name + "_" + attr %}

@@ -1,0 +1,1 @@
+["Node Name=denotsp34", "Partition Number=9", "Type=Shared-SMT-4", "Mode=Uncapped", "Entitled Capacity=4.10", "Online Virtual CPUs=5", "Maximum Virtual CPUs=8", "Minimum Virtual CPUs=1", "Online Memory=81920 MB", "Desired Virtual CPUs=5", "Oslevel=7100-05-02-1810", "Cluster Name=No_Cluster", "IP Address=10.61.42.117"]

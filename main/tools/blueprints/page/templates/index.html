@@ -2,6 +2,113 @@
 {% block title %} Easy	Manager - Home	{% endblock %}
 
 {% block body %}
+            <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/index.css') }}">
+            <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/draggable-form.css') }}">
+            <section id="flex-main-panel">
+                <div class="flex-main-modules">
+                    <div class="flex-modules horiz-grad">
+                        <a class="flex-button" href="/servers">
+                            <i class="fa fa-server theme"></i>
+                        </a>
+                        <div class="flex-card">
+                            <p class="flex-badge">{{ num_servers }}</p>
+                            <p class="flex-text"> AIX/VIO <b>Servers</b> in the environment</p>
+                        </div>
+                    </div>
+                    <div class="flex-modules horiz-grad">
+                        <a class="flex-button" href="/users">
+                            <i class="fa fa-users theme"></i>
+                        </a>
+                        <div class="flex-card">
+                            <p class="flex-badge">{{ num_users }}</p>
+                            <p class="flex-text"> Unique <b>Users</b> in the environment</p>
+                        </div>
+                    </div>
+                    <div class="flex-modules horiz-grad">
+                        <a class="flex-button" href="/rpms">
+                            <i class="fab fa-redhat theme"></i>
+                        </a>
+                        <div class="flex-card">
+                            <p class="flex-badge">{{ num_rpms }}</p>
+                            <p class="flex-text"> Unique <b>RPMS</b> in the environment</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="flex-report-panel">
+                    <div id="flex-report" class="vert-grad">
+                        <a id="flex-report-button" class="flex-button">
+                            <i class="fa fa-balance-scale theme"></i>
+                        </a>
+                        <p class="flex-text">
+                            Compare the <b>software, users or configuration</b> inventory of two or more servers.
+                        </p>
+                    </div>
+                </div>
+            </section>
 
+            <!-- Draggable FORM FILTER -->
+            <div id="draggable_form" class="medium-double-border">
+                <div id="draggable_form-header" class="horiz-grad">
+                    <b class="fa fa-balance-scale white"> Compare Servers</b>
+                    <b id="df-button-close" class="flex-df-button"><i class="fa fa-window-close"></i></b>
+                </div>
+                <div id="flex-compare-settings">
+                    <div id="flex-box-modules">
+                        <p><b class="flex-text"> Available Modules:</b></p>
+                        <div id="flex-modules">
+                            <i class="far fa-circle module"><b>Users</b></i>
+                            <i class="far fa-circle module"><b>Rpms</b></i>
+                        </div>
+                    </div>
+                    <div id="flex-box-servers">
+                        <div class="flex-servers-select">
+                            <p><b class="flex-text"> Available Servers: </b></p>
+                            <select multiple name="select" id="select-servers-available" size="12">
+                                {%- for server_name in servers_names %}
+                                <option class="themed-hover" value={{ server_name }}>
+                                    {{ server_name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <a id="button-to-compared" class="flex-df-button"> >> </a>
+                        </div>
+                        <div class="flex-servers-select">
+                            <p><b class="flex-text"> Servers to Compare: </b></p>
+                            <select multiple name="select" id="select-servers-compared" size="12">
+                                <option value="ph_compared" disabled style="font-style: italic"> Choose at least 2 </option>
+                            </select>
+                            <a id="button-to-available" class="flex-df-button"> << </a>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Error Box -->
+                <div id="error-box">
+                </div>
+                <!-- END of Error Box -->
+                <div id="flex-form-buttons">
+                    <!-- Apply / Cancel / Reset Buttons -->
+                    <div class="flex-button-box">
+                        <a id="btn-df-apply" class="fa fa-check flex-df-button"></a>
+                        <b> Compare</b>
+                    </div>
+                    <div class="flex-button-box ">
+                        <a id="btn-df-reset" class="fa fa-recycle flex-df-button"></a>
+                        <b> Reset</b>
+                    </div>
+                    <div class="flex-button-box ">
+                        <a id="btn-df-cancel" class="fa fa-times flex-df-button"></a>
+                        <b> Cancel</b>
+                    </div>
+                    <!-- END of Apply / Cancel / Reset Buttons -->
+                </div>
+            </div>
+            <!-- END of Draggable FORM FILTER -->
+
+            <!-- Shadow layer when Filter form is active -->
+            <div id="shadow-layer">
+            </div>
+            <!-- END of Shadow layer when Filter form is active -->
+
+            <script src="/static/js/index.js"></script>
 {% endblock %}

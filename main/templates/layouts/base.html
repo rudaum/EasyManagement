@@ -5,11 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>
-        <script src="/static/js/browser.js"></script>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontawesome-all.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/alt_base.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/text-deco.css') }}">
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.ico') }}">
         <title> {% block title %} {% endblock %} </title>
     </head>
     <body>
@@ -34,6 +34,19 @@
                                         <i class="fa fa-level-up-alt"></i> View
                                     </a>
                                     <a href="/users-changelog" class="navbar-hover">
+                                        <i class="fa fa-level-up-alt"></i> Change Log
+                                    </a>
+                                </div>
+                            </a>
+                        </td>
+                        <td class="navbar-dropdown">
+                            <a href="/rpms">
+                                <i class="fab fa-redhat"></i> RPMS <i class="fa fa-caret-down"></i>
+                                <div class="navbar-dropdown-content">
+                                    <a href="/rpms" class="navbar-hover">
+                                        <i class="fa fa-level-up-alt"></i> View
+                                    </a>
+                                    <a href="/rpms-changelog" class="navbar-hover">
                                         <i class="fa fa-level-up-alt"></i> Change Log
                                     </a>
                                 </div>

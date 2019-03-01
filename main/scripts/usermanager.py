@@ -17,6 +17,7 @@
 import os
 import sys
 from datetime import datetime
+from collections import OrderedDict
 path = os.path.realpath(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append('{0}/../../'.format(path))
 from subprocess import call
@@ -64,7 +65,10 @@ targ_hosts = targ_hosts
 mk_dbenv()
 
 # Querying servers from the Database and storing the results in a Ordered Dict
-ordered_dict = User().query_all()
+users_query = User().query_all()
+orddict_users_from_db = OrderedDict()
+for entry in users_query:
+    orddict_users_from_db[entry.user_server] = entry
 
 # setting the Ansible Command
 ans_cmd = [PLAYBOOKBIN, PBDIR + "lsuser.yml", "-l", targ_hosts]
@@ -83,146 +87,157 @@ for filename in os.listdir(PBOUTPUTDIR):
     if filename.endswith(".pb"):
         host = os.path.basename(filename).replace(".pb", "")
         _file = open(os.path.join(PBOUTPUTDIR, filename))
+        # Transforming Ansible result file into an Array of values.
         userlist = eval('[' + _file.readline().replace(', "-NEXT-", ', '],[').replace(', "-NEXT-"]', ']') + ']')
-        changes_dict = []
+
         print ('Parsing/Persisting Users for {} ...'.format(host))
+        checked_users = []  # Contains Users that still exists and were not removed since last check
+        changes_dict = []
+        # Getting the current timestamp to be used as "Detected on" value.
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
         for user in userlist:
             newuser = False
             username = user[0].split('=')[1]
             dictidx = username + '_' + host
-            if dictidx not in ordered_dict.keys():
-                ordered_dict[dictidx] = User()
+            if dictidx not in orddict_users_from_db.keys():
+                orddict_users_from_db[dictidx] = User()
                 newuser = True
-                now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                changes_dict.append([username, host, 'user', 'non-existent', 'created', now])
+                changes_dict.append([username, host, 'user', 'not-present', 'present', now])
 
-            ordered_dict[dictidx].user_server = dictidx
-            ordered_dict[dictidx].user_name = username
-            ordered_dict[dictidx].server_name = host
+            orddict_users_from_db[dictidx].user_server = dictidx
+            orddict_users_from_db[dictidx].user_name = username
+            orddict_users_from_db[dictidx].server_name = host
+            checked_users.append(dictidx)
             for attribute in user[1:]:
                 attr = attribute.split('=')[0]
                 #                               Some Attributes are null
                 value = attribute.split('=')[1] if len(attribute.split('=')[1]) > 0 else NULLSTR
 
-                # transforming 'id' and pgrp attrs in quivalent name for the DB;l
+                # transforming 'id' and pgrp attrs in equivalent name for the DB;l
                 tmpattr = 'user_id' if attr == 'id' else attr
                 tmpattr = 'primary_group' if tmpattr == 'pgrp' else tmpattr
                 try:
-                    # if it is not an ingrable attribute and it is not a new user, compare old and new values
+                    # if it is not an ignorable attribute and it is not a new user, compare old and new values
                     if tmpattr not in IGNORED_ATTR and not newuser:
                         db_value = User().query_by('user_server', dictidx)[0].get_column_value(tmpattr)
                         if str(db_value) != str(value):
-                            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                             changes_dict.append([username, host, attr, db_value, value, now])
                 except AttributeError:
                     continue
 
-
                 if attr == "id":
-                    ordered_dict[dictidx].user_id = value
+                    orddict_users_from_db[dictidx].user_id = value
                 elif attr == "pgrp":
-                    ordered_dict[dictidx].primary_group = value
+                    orddict_users_from_db[dictidx].primary_group = value
                 elif attr == "groups":
-                    ordered_dict[dictidx].groups = value
+                    orddict_users_from_db[dictidx].groups = value
                 elif attr == "home":
-                    ordered_dict[dictidx].home = value
+                    orddict_users_from_db[dictidx].home = value
                 elif attr == "gecos":
-                    ordered_dict[dictidx].gecos = value
+                    orddict_users_from_db[dictidx].gecos = value
                 elif attr == "time_last_login":
                     if value == NULLSTR:
                         datestamp = datetime.utcfromtimestamp(float(0)).strftime('%Y-%m-%d %H:%M:%S')
                     else:
                         datestamp = datetime.utcfromtimestamp(float(value)).strftime('%Y-%m-%d %H:%M:%S')
-                    ordered_dict[dictidx].time_last_login = datestamp
+                    orddict_users_from_db[dictidx].time_last_login = datestamp
                 elif attr == "unsuccessful_login_count":
-                    ordered_dict[dictidx].unsuccessful_login_count = value
+                    orddict_users_from_db[dictidx].unsuccessful_login_count = value
                 elif attr == "maxage":
-                    ordered_dict[dictidx].maxage = value
+                    orddict_users_from_db[dictidx].maxage = value
                 elif attr == "shell":
-                    ordered_dict[dictidx].shell = value
+                    orddict_users_from_db[dictidx].shell = value
                 elif attr == "umask":
-                    ordered_dict[dictidx].umask = value
+                    orddict_users_from_db[dictidx].umask = value
                 elif attr == "fsize":
-                    ordered_dict[dictidx].fsize = value
+                    orddict_users_from_db[dictidx].fsize = value
                 elif attr == "cpu":
-                    ordered_dict[dictidx].cpu = value
+                    orddict_users_from_db[dictidx].cpu = value
                 elif attr == "data":
-                    ordered_dict[dictidx].data = value
+                    orddict_users_from_db[dictidx].data = value
                 elif attr == "stack":
-                    ordered_dict[dictidx].stack = value
+                    orddict_users_from_db[dictidx].stack = value
                 elif attr == "core":
-                    ordered_dict[dictidx].core = value
+                    orddict_users_from_db[dictidx].core = value
                 elif attr == "rss":
-                    ordered_dict[dictidx].rss = value
+                    orddict_users_from_db[dictidx].rss = value
                 elif attr == "nofiles":
-                    ordered_dict[dictidx].nofiles = value
+                    orddict_users_from_db[dictidx].nofiles = value
                 elif attr == "login":
-                    ordered_dict[dictidx].login = value
+                    orddict_users_from_db[dictidx].login = value
                 elif attr == "su":
-                    ordered_dict[dictidx].su = value
+                    orddict_users_from_db[dictidx].su = value
                 elif attr == "rlogin":
-                    ordered_dict[dictidx].rlogin = value
+                    orddict_users_from_db[dictidx].rlogin = value
                 elif attr == "daemon":
-                    ordered_dict[dictidx].daemon = value
+                    orddict_users_from_db[dictidx].daemon = value
                 elif attr == "admin":
-                    ordered_dict[dictidx].admin = value
+                    orddict_users_from_db[dictidx].admin = value
                 elif attr == "sugroups":
-                    ordered_dict[dictidx].sugroups = value
+                    orddict_users_from_db[dictidx].sugroups = value
                 elif attr == "admgroups":
-                    ordered_dict[dictidx].admgroups = value
+                    orddict_users_from_db[dictidx].admgroups = value
                 elif attr == "tpath":
-                    ordered_dict[dictidx].tpath = value
+                    orddict_users_from_db[dictidx].tpath = value
                 elif attr == "ttys":
-                    ordered_dict[dictidx].ttys = value
+                    orddict_users_from_db[dictidx].ttys = value
                 elif attr == "expires":
-                    ordered_dict[dictidx].expires = value
+                    orddict_users_from_db[dictidx].expires = value
                 elif attr == "auth1":
-                    ordered_dict[dictidx].auth1 = value
+                    orddict_users_from_db[dictidx].auth1 = value
                 elif attr == "auth2":
-                    ordered_dict[dictidx].auth2 = value
+                    orddict_users_from_db[dictidx].auth2 = value
                 elif attr == "registry":
-                    ordered_dict[dictidx].registry = value
+                    orddict_users_from_db[dictidx].registry = value
                 elif attr == "SYSTEM":
-                    ordered_dict[dictidx].system = value
+                    orddict_users_from_db[dictidx].system = value
                 elif attr == "logintimes":
-                    ordered_dict[dictidx].logintimes = value
+                    orddict_users_from_db[dictidx].logintimes = value
                 elif attr == "loginretries":
-                    ordered_dict[dictidx].loginretries = value
+                    orddict_users_from_db[dictidx].loginretries = value
                 elif attr == "pwdwarntime":
-                    ordered_dict[dictidx].pwdwarntime = value
+                    orddict_users_from_db[dictidx].pwdwarntime = value
                 elif attr == "account_locked":
-                    ordered_dict[dictidx].account_locked = value
+                    orddict_users_from_db[dictidx].account_locked = value
                 elif attr == "minage":
-                    ordered_dict[dictidx].minage = value
+                    orddict_users_from_db[dictidx].minage = value
                 elif attr == "maxexpired":
-                    ordered_dict[dictidx].maxexpired = value
+                    orddict_users_from_db[dictidx].maxexpired = value
                 elif attr == "minalpha":
-                    ordered_dict[dictidx].minalpha = value
+                    orddict_users_from_db[dictidx].minalpha = value
                 elif attr == "minother":
-                    ordered_dict[dictidx].minother = value
+                    orddict_users_from_db[dictidx].minother = value
                 elif attr == "mindiff":
-                    ordered_dict[dictidx].mindiff = value
+                    orddict_users_from_db[dictidx].mindiff = value
                 elif attr == "maxrepeats":
-                    ordered_dict[dictidx].maxrepeats = value
+                    orddict_users_from_db[dictidx].maxrepeats = value
                 elif attr == "minlen":
-                    ordered_dict[dictidx].minlen = value
+                    orddict_users_from_db[dictidx].minlen = value
                 elif attr == "histexpire":
-                    ordered_dict[dictidx].histexpire = value
+                    orddict_users_from_db[dictidx].histexpire = value
                 elif attr == "histsize":
-                    ordered_dict[dictidx].histsize = value
+                    orddict_users_from_db[dictidx].histsize = value
                 elif attr == "pwdchecks":
-                    ordered_dict[dictidx].pwdchecks = value
+                    orddict_users_from_db[dictidx].pwdchecks = value
                 elif attr == "dictionlist":
-                    ordered_dict[dictidx].dictionlist = value
+                    orddict_users_from_db[dictidx].dictionlist = value
                 elif attr == "default_roles":
-                    ordered_dict[dictidx].default_roles = value
+                    orddict_users_from_db[dictidx].default_roles = value
                 elif attr == "roles":
-                    ordered_dict[dictidx].roles = value
+                    orddict_users_from_db[dictidx].roles = value
 
             # Persisting the User Object into the database
-            ordered_dict[dictidx].update()
+            orddict_users_from_db[dictidx].update()
 
         print ('Processing the User changes since last run ...')
+        # Checking Users  that were deleted
+        for user_server in orddict_users_from_db.keys():
+            if user_server not in checked_users and host in user_server:
+                user_name = user_server.split('_')[0]
+                changes_dict.append([user_name, host, 'user', 'present', 'not-present', now])
+                orddict_users_from_db[user_server].delete()
+
         for change in changes_dict:
             ch = UserChanges()
             ch.user_name = change[0]

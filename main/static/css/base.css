@@ -1,162 +1,74 @@
-* {
---kn-color: #56B6E9;
---theme-color: #56B6E9;
---theme-color: #56B6E9;
-}
-
-.main-header {
-    background-color: #FFFFFF solid;
-    margin-top: 6px
-    border-radius: 6px;
-    height: 80px;
-    color:#000000
-}
-
-.base-nav {
-    top: 80px;
-}
-
-.navbar {
-    padding-left: 40px;
-    font-size: 120%;
-}
-
-#panel-base {
-    width: 100% !important;
-    position: fixed;
-    left: 0px;
-    bottom: 30px;
-    overflow: auto;
-    height: 82vh;
-}
-
-footer {
-    bottom: 0px;
-    margin-top: 6px;
-}
-
-.fixed {
-    position: fixed;
-    width: 100%;
-    max-width: 100%;
-}
-
-.sticky {
-    position: sticky;
-    width: 100%;
-    max-width: 100%;
-}
-
-.theme {
-     color: var(--theme-color);
-}
-
-.black {
-     color: #000000;
-}
-
-.white {
-     color: #FFFFFF;
-}
-
-
-.grad {
-     background-image: linear-gradient(0deg, #e8f5fc, #d2ebf9, #bbe2f6, #8ecef0, #8ecef0, #bbe2f6, #d2ebf9, #e8f5fc);
-     background-image: linear-gradient(0deg, #8ecef0, #bbe2f6, #d2ebf9, #e8f5fc, #e8f5fc, #d2ebf9, #bbe2f6, #8ecef0);
-}
-
-.horiz-grad {
-     background-image: linear-gradient(90deg, var(--theme-color), #d2ebf9);
+body, html, header{
+    margin: 0;
+    padding: 0;
+    top: 0;
+    clear: both;
 }
 
 .vert-grad {
      background-image: linear-gradient(180deg, var(--theme-color), #d2ebf9);
 }
 
-.bg-theme {
-     background-color: var(--theme-color);
+.horiz-grad {
+     background-image: linear-gradient(90deg, var(--theme-color), #d2ebf9);
 }
 
-.float-right {
-    float: right;
+.horiz-rev-grad {
+     background-image: linear-gradient(90deg, #d2ebf9, var(--theme-color));
 }
 
-.float-left {
+#header {
+    position: absolute;
+    width: 100%;
     float: left;
+    z-index: 9;
 }
 
-.right {
-    text-align: right;
-}
-
-.left {
-    text-align: left;
-}
-
-.totop {
-    top: 0;
-}
-
-.text-large {
-    font-size: 115%
-}
-
-.text-largest {
-    font-size: 135%
-}
-
-.smaller-text {
-    font-size: 92%
-}
-
-.smallest-text {
-    font-size: 80%
-}
-
-.em-dropdown {
-    //margin:10px;
-    list-style: none;
-    padding-top: 10px;
-    max-width: 130px;
-    text-align: center;
-}
-
-.em-dropdown-cell {
-    min-width: 160px;
-    padding-left: 5px;
-    padding-right: 5px;
-}
-
-
-.themed-hover:hover {
-    background-color: #d2ebf9;
-    color: var(--theme-color);
-}
-
-
-.bold {
-    font-weight: bold;
-}
-
-.nodeco {
+#header a {
     text-decoration: none;
 }
 
-.theme-shadow:hover {
-    text-shadow: 2px 2px 2px #000000;
-    transition: 0.3s;
+#header ul {
+    list-style-type: none;
 }
 
-.navbar-dropdown {
-    padding: 1.2vh 1vh 1vh 1vh;
+#header li {
+    display: inline;
+}
+
+#em-logo{
+    padding: 0vh 1vw 1vh 2vw;
+}
+
+#em-logo a{
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+#navigation-bar {
+    background-color: var(--greyish);
+}
+
+.navbar-hover:hover {
+    background-color: var(--navbar-theme);
+}
+
+#navbar-table td{
+    vertical-align: text-top;
+    padding-left: 1vw;
+    padding-top: 1vw;
+    padding-bottom: 0.5vw;
+    min-width: 120px;
+}
+
+#navbar-table a{
+    color: #000000;
+    font-weight: bold;
 }
 
 .navbar-dropdown-content {
     display: none;
-    position: fixed;
-    min-width: 120px;
-    background-color: rgba(248,248,248);
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    max-width: 120px;
 }
 
 .navbar-dropdown:hover .navbar-dropdown-content {
@@ -168,18 +80,42 @@ footer {
 }
 
 .navbar-dropdown-content a {
-    //float: none;
-    color: black;
-    padding: 8px;
-    text-decoration: none;
     display: block;
     text-align: left;
+    font-weight: 100;
+    font-size: 80%;
+    margin-left: 10px;
 }
 
-.panel-body table {
+.navbar-dropdown-content i {
+    transform: rotate(90deg)
+}
+
+#panel-base {
+    width: 100%;
+    position: static;
+    left: 0px;
+    bottom: 30px;
+    overflow: auto;
+    height: 97vh;
+    padding-top: 15vh;
+}
+
+.dropdown-menu {
+    height: 35vh;
+    overflow: auto;
+}
+
+.themed-hover:hover {
+    background-color: #d2ebf9;
+    color: var(--theme-color);
+}
+
+
+footer {
+    bottom: 0px;
+    margin-top: 6px;
+    position: fixed;
     width: 100%;
 }
 
-select {
-    width: 100%;
-}

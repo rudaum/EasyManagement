@@ -1,13 +1,40 @@
-"""
-Sets and starts the Flask Application using Blueprints
+#!/usr/bin/python
+# - Purpose:
+#       <purpose>
+# - Author:
+#       <author>
+# - Contact for questions and/or comments:
+#       <contact>
+# - Parameters:
+#       < accepted arguments>
+# - Version Releases and modifications.
+#       <versions history log>
 
-:return: Running Flask Application
-"""
-import sys, os
+### START OF MODULE IMPORTS ###
+# --------------------------------------------------------------- #
+import os
+import sys
 path = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '../..')
 sys.path.append(path)
 from flask import Flask
 from tools.blueprints.page import page
+from lib.threadlib import start_dbquery_thread
+# --------------------------------------------------------------- #
+### END OF MODULE IMPORTS ###
+
+### START OF GLOBAL VARIABLES DECLARATION ###
+# --------------------------------------------------------------- #
+# --------------------------------------------------------------- #
+### END OF GLOBAL VARIABLES DECLARATION ###
+
+
+### START OF UTILITY FUNCTIONS DECLARATION
+# --------------------------------------------------------------- #
+# --------------------------------------------------------------- #
+### END OF UTILITY FUNCTIONS DECLARATION
+
+# Starting the DB thread that refreshes the QUERY global variables
+start_dbquery_thread()
 
 # instantiating the Flask Application, with relative configuration enabled
 app = Flask(__name__, instance_relative_config=True)
@@ -19,4 +46,4 @@ app.config.from_object('main.lib.settings')
 app.register_blueprint(page)
 
 # Starting the Web Application
-app.run()
+app.run(threaded=True)

@@ -1,0 +1,175 @@
+{% extends 'layouts/base.html' %}
+{% block title %} Easy	Manager - Home	{% endblock %}
+
+{% block body %}
+            <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/compare.css') }}">
+            <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tables.css') }}">
+            <div id="flex-main-panel">
+                {%- if 'users' in modules_to_compare %}
+                <div class="module-panel">
+                    <h4> <i class="fa fa-users"> </i>USERS Comparison</h4>
+                    <div class="flex-table-settings">
+                        <div class="settings-placeholder-left">
+                            <div></div>
+                        </div>
+                        <div class="settings-panel">
+                            <i class="settings-header"><i class="fa fa-cogs"> Settings </i></i>
+                            <div class="flex-differences horiz-grad">
+                                <i class="flex-badge">0</i>
+                                <p>Divergent Attributes found!</p>
+                                <i id="check-users-highlight" class="far fa-circle highlight-setting"><b> Highlight</b></i>
+                            </div>
+                        </div>
+                        <div class="settings-panel">
+                            <span class="settings-header"><i class="fa fa-filter"> Filters </i></span>
+                            <div class="flex-filters horiz-grad">
+                                <div class="flex-filter-divergent">
+                                    <i id="filter-divergent-users" class="far fa-circle">
+                                        <b> Show Only Users with Divergences  </b>
+                                    </i>
+                                </div>
+                                <div>
+                                    or
+                                </div>
+                                <div class="flex-filter-user">
+                                    <b>Filter By User(s): </b>
+                                    <input id="userFilter" type="text" placeholder="PatternA,PatternB ...">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="settings-placeholder-right">
+                            <div></div>
+                        </div>
+                    </div>
+
+                    <table id="users-table" class="table-comparison">
+                        <tr>
+                            <th class="table-comparison-header medium-double-border vert-grad">
+                                <div class="flex-compared-thing">
+                                    <div class="flex-thing">
+                                        <b> User | Compared Servers</b>
+                                    </div>
+                                </div>
+                            </th>
+                            {%- for attr in servers_users_query.values()[0].values()[0].get_columns()[3:] %}
+                            {%- set attr_id = attr + "--users-col" %}
+                            <th id={{ attr_id }} class="table-comparison-header medium-double-border vert-grad">
+                                <b> {{ attr.replace("_", " ") }}</b>
+                            </th>
+                            {%- endfor %}
+                        {%- for user_name in uniq_users %}
+                        {%- set user_id = user_name + "--users-row" %}
+                        <tr id={{ user_id }}>
+                            <td class="medium-double-border horiz-grad">
+                                <div class="flex-compared-thing">
+                                    <div class="flex-thing">
+                                        <b class="smaller-text">{{ user_name }}</b>
+                                    </div>
+                                    <div class="flex-servers ">
+                                        {%- for server in servers_to_compare %}
+                                        <b class="thin-dashed-border smallest-text">{{ server }}</b>
+                                        {%- endfor %}
+                                    </div>
+                                </div>
+                            </td>
+                            {%- for attr in servers_users_query.values()[0].values()[0].get_columns()[3:] %}
+                            <td class="medium-double-border">
+                                <div class="flex-compared-attribute">
+                                    {%- for server in servers_to_compare %}
+                                    {%- set userobj = servers_users_query[server][user_name] %}
+                                    <b class="smallest-text thin-dashed-border">{{ userobj.get_column_value('{}'.format(attr)) }}</b>
+                                    {%- endfor %}
+                                </div>
+                            </td>
+                            {%- endfor %}
+                        </tr>
+                        {%- endfor %}
+                    </table>
+                </div>
+                {%- endif %}
+
+                {%- if 'rpms' in modules_to_compare %}
+                <div class="module-panel">
+                    <h4> <i class="fab fa-redhat"> </i>RPMS Comparison</h4>
+                    <div class="flex-table-settings">
+                        <div class="settings-placeholder-left">
+                            <div></div>
+                        </div>
+                        <div class="settings-panel">
+                            <b class="settings-header"><i class="fa fa-cogs"> Settings </i></b>
+                            <div class="flex-differences horiz-grad">
+                                <i class="flex-badge">0</i>
+                                <p>Divergent Attributes found!</p>
+                                <i id="check-rpms-highlight" class="far fa-circle highlight-setting"><b> Highlight</b></i>
+                            </div>
+                        </div>
+                        <div class="settings-panel">
+                            <b class="settings-header"><i class="fa fa-filter"> Filters </i></b>
+                            <div class="flex-filters horiz-grad">
+                                <div class="flex-filter-divergent">
+                                    <i id="filter-divergent-rpms" class="far fa-circle">
+                                        <b> Show Only RPM with Divergences  </b>
+                                    </i>
+                                </div>
+                                <div>
+                                    or
+                                </div>
+                                <div class="flex-filter-user">
+                                    <b>Filter By RPM(s): </b>
+                                    <input id="rpmFilter" type="text" placeholder="PatternA,PatternB ...">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="settings-placeholder-right">
+                            <div></div>
+                        </div>
+                    </div>
+
+                    <table id="rpms-table" class="table-comparison">
+                        <tr>
+                            <th class="table-comparison-header medium-double-border vert-grad">
+                                <div class="flex-compared-thing">
+                                    <div class="flex-thing">
+                                        <b> RPM | Compared Servers</b>
+                                    </div>
+                                </div>
+                            </th>
+                            {%- for attr in servers_rpms_query.values()[0].values()[0].get_columns()[3:] %}
+                            {%- set attr_id = attr + "--rpms-col" %}
+                            <th id={{ attr_id }} class="table-comparison-header medium-double-border vert-grad">
+                                <b> {{ attr.replace("_", " ") }}</b>
+                            </th>
+                            {%- endfor %}
+                        {%- for rpm_name in uniq_rpms %}
+                        {%- set rpm_id = rpm_name + "--rpms-row" %}
+                        <tr id={{ rpm_id }}>
+                            <td class="medium-double-border horiz-grad">
+                                <div class="flex-compared-thing">
+                                    <div class="flex-thing">
+                                        <b class="smaller-text">{{ rpm_name }}</b>
+                                    </div>
+                                    <div class="flex-servers ">
+                                        {%- for server in servers_to_compare %}
+                                        <b class="thin-dashed-border smallest-text">{{ server }}</b>
+                                        {%- endfor %}
+                                    </div>
+                                </div>
+                            </td>
+                            {%- for attr in servers_rpms_query.values()[0].values()[0].get_columns()[3:] %}
+                            <td class="medium-double-border">
+                                <div class="flex-compared-attribute">
+                                    {%- for server in servers_to_compare %}
+                                    {%- set rpmobj = servers_rpms_query[server][rpm_name] %}
+                                    <b class="smallest-text thin-dashed-border">{{ rpmobj.get_column_value('{}'.format(attr)) }}</b>
+                                    {%- endfor %}
+                                </div>
+                            </td>
+                            {%- endfor %}
+                        </tr>
+                        {%- endfor %}
+                    </table>
+                </div>
+                {%- endif %}
+            </div>
+            <script src="/static/js/compare.js"></script>
+{% endblock %}
